@@ -14,4 +14,9 @@ class Label extends Model
     {
         return $this->belongsTo(User::class, 'id_user');
     }
+
+    public function songs()
+    {
+        return $this->hasMany(Song::class, 'id_label');
+    }
 }
