@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('judul');
             $table->text('cover');
             $table->text('lagu');
-            // $table->time('duration');
             $table->date('tanggal_rilis');
             $table->enum('status', ['pending', 'published', 'unpublished']);
             $table->unsignedBigInteger('id_user');

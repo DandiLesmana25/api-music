@@ -28,6 +28,11 @@ class User extends Authenticatable
         'last_login'
     ];
 
+    public function songs()
+    {
+        return $this->hasMany(Song::class, 'id_user');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
