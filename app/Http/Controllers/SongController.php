@@ -58,13 +58,9 @@ class SongController extends Controller
         ], 400);
     }
 
-    // lagu kesimpen di storage/app/public/lagu
-    $lagu = $request->file('lagu');
-    $laguPath = $lagu->store('lagu', 'public');
-
-    // $file = $request->file;
-    // $song = $file->getClientOriginalName();
-    // $file->move('songs/' . $user->id, $song);
+    // code agar lagu kesimpen di storage/app/public/lagu
+    // $lagu = $request->file('lagu');
+    // $laguPath = $lagu->store('lagu', 'public');
     
     
     // dari a ray(agar lagunya kesimpen di public)
@@ -72,6 +68,10 @@ class SongController extends Controller
     // $filename_foto = date("y-m-d-h-i-s") . "_" . $file->getClientOriginalName();
     // $request->file->move('song/', $filename_foto);
 
+    //  lagunya sudah tersimpan di file public
+    $file = $request->file('lagu');
+    $laguPath = 'lagu/' . date("y-m-d-h-i-s") . "_" . $file->getClientOriginalName();
+    $file->move(public_path('lagu'), $laguPath);
 
     $song = new Song();
     $song->judul = $request->judul;
@@ -83,6 +83,16 @@ class SongController extends Controller
     $song->id_user = $request->id_user;
     $song->id_label = $request->id_label;
     $song->save();
+
+    // $song = Song::create([
+    //     'judul' => $data['judul'],
+    //     'cover' => $data['cover'],
+    //     'lagu' => $laguPath,
+    //     'tanggal_rilis' => $data['tanggal_rilis'],
+    //     'status' => $data['status'],
+    //     'id_user' => $data['id_user'],
+    //     'id_label' => $data['id_label'],
+    // ]);
 
     return response()->json([
         'message' => 'Song created successfully',

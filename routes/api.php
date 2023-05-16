@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SongController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,9 +37,7 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
 
     // add song
-    // Route::post('/songs', [SongController::class, 'store']);
     Route::post('/songs', [SongController::class, 'store']);
-    // Route::post('/songs', [SongController::class, 'add_song']);
 
     // add label
     Route::post('/labels', [LabelController::class, 'store'])->name('labels.store');
