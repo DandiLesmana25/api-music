@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,9 +30,9 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
     // controller dan function belum di buat semua ya
     // kasih commet kalau sudah
-    Route::post('register', [AdminController::class, 'register']);
-    Route::get('register', [AdminController::class, 'show_register']);
-    Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);
+    Route::post('register', [AdminController::class, 'register']); // sudah oke
+    Route::get('register', [AdminController::class, 'show_register']); // sudah oke
+    Route::post('register/{id}', [AdminController::class, 'show_register_by_id']);  // sudah oke
     Route::put('register/{id}', [AdminController::class, 'update_register']);
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
 });
@@ -41,7 +42,7 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
 /*
 user routes  
-routes untuk admin, dimana terdapat middleware admin dan juga prefix awalan url "user"
+routes untuk user, dimana terdapat middleware admin dan juga prefix awalan url "user"
 */
 Route::middleware(['user.api'])->prefix('user')->group(function () {
     //
