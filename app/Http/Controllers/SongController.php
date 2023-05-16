@@ -58,13 +58,26 @@ class SongController extends Controller
         ], 400);
     }
 
+    // lagu kesimpen di storage/app/public/lagu
     $lagu = $request->file('lagu');
     $laguPath = $lagu->store('lagu', 'public');
+
+    // $file = $request->file;
+    // $song = $file->getClientOriginalName();
+    // $file->move('songs/' . $user->id, $song);
+    
+    
+    // dari a ray(agar lagunya kesimpen di public)
+    // $file = $request->file;
+    // $filename_foto = date("y-m-d-h-i-s") . "_" . $file->getClientOriginalName();
+    // $request->file->move('song/', $filename_foto);
+
 
     $song = new Song();
     $song->judul = $request->judul;
     $song->cover = $request->cover;
     $song->lagu = $laguPath;
+    // $song->lagu = $filename_foto;
     $song->tanggal_rilis = $request->tanggal_rilis;
     $song->status = $request->status;
     $song->id_user = $request->id_user;
