@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +33,7 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::post('register', [AdminController::class, 'register']); // sudah oke
     Route::get('register', [AdminController::class, 'show_register']); // sudah oke
     Route::post('register/{id}', [AdminController::class, 'show_register_by_id']);  // sudah oke
-    Route::put('register/{id}', [AdminController::class, 'update_register']);
+    Route::put('register/{id}', [AdminController::class, 'update_register']); // Sudah Oke
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
 
     // add song

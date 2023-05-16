@@ -80,11 +80,13 @@ class AuthController extends Controller
         }
 
         if (Auth::attempt($validator->validated())) {
+
             $playload = [
                 'name' => Auth::user()->name,
                 'role' => Auth::user()->role,
                 'iat' => now()->timestamp,
-                'ext' => now()->timestamp + 7200
+                'ext' => now()->timestamp + 7200,
+                'name' => Auth::user()->id,
             ];
 
             $token = JWT::encode($playload, env('JWT_SECRET_KEY'), 'HS256');
@@ -98,6 +100,7 @@ class AuthController extends Controller
             return response()->json([
                 "data" => [
                     'msg' => "berhasil login",
+                    'id' => Auth::user()->id,
                     'name' => Auth::user()->name,
                     'email' => Auth::user()->email,
                     'role' => Auth::user()->role,
