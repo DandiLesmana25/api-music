@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SongController;
+use App\Http\Controllers\ViewSongController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +53,14 @@ routes untuk user, dimana terdapat middleware admin dan juga prefix awalan url "
 */
 Route::middleware(['user.api'])->prefix('user')->group(function () {
     //
+    Route::prefix('viewsongs')->group(function () {
+        Route::get('/', [ViewSongController::class, 'index']);
+
+        // Route::post('/', [ViewSongController::class, 'store']);
+        // Route::get('/{viewsong}', [ViewSongController::class, 'show']);
+        // Route::put('/{viewsong}', [ViewSongController::class, 'update']);
+        // Route::delete('/{viewsong}', [ViewSongController::class, 'destroy']);
+    });
 
 });
 

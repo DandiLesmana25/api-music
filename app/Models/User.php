@@ -32,6 +32,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Song::class, 'id_user');
     }
+    
+    public function viewedSongs()
+    {
+        return $this->hasMany(ViewSong::class, 'id_user');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
