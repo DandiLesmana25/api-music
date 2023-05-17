@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SongController;
+use App\Http\Controllers\LabelController;
 use App\Http\Controllers\ViewSongController;
 
 /*
@@ -44,7 +45,8 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
     // add label
     Route::post('/labels', [LabelController::class, 'store'])->name('labels.store');
-    Route::get('/labels/show-all', [LabelController::class, 'store'])->name('labels.store');
+    Route::get('/labels/show-all/', [LabelController::class, 'index']);
+    Route::get('/labels/show/{id}', [LabelController::class, 'show']);
 });
 
 
@@ -56,9 +58,10 @@ routes untuk user, dimana terdapat middleware admin dan juga prefix awalan url "
 */
 Route::middleware(['user.api'])->prefix('user')->group(function () {
     //
+    Route::get('/songs/show-all', [SongController::class, 'index']);
 
-     Route::get('/songs/show-all', [SongController::class, 'index']);
-     
+    Route::get('/labels/show-all/', [LabelController::class, 'index']);
+    Route::get('/labels/show/{id}', [LabelController::class, 'show']);
 
 
 

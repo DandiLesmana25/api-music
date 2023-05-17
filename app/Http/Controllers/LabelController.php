@@ -18,6 +18,13 @@ class LabelController extends Controller
     public function index()
     {
         //
+        $labels = Label::all();
+
+        return response()->json([
+            'message' => 'Success',
+            'data' => $labels,
+        ]);
+        
     }
 
   
@@ -65,6 +72,13 @@ class LabelController extends Controller
     public function show($id)
     {
         //
+        $label = Label::findOrFail($id);
+
+        return response()->json([
+            'message' => 'Success',
+            'data' => $label,
+        ]);
+
     }
 
     /**
