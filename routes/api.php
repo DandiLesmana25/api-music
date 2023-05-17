@@ -39,9 +39,12 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
     // add song
     Route::post('/songs', [SongController::class, 'store']);
+    // view song
+    Route::get('/songs/show-all', [SongController::class, 'index']);
 
     // add label
     Route::post('/labels', [LabelController::class, 'store'])->name('labels.store');
+    Route::get('/labels/show-all', [LabelController::class, 'store'])->name('labels.store');
 });
 
 
@@ -53,14 +56,11 @@ routes untuk user, dimana terdapat middleware admin dan juga prefix awalan url "
 */
 Route::middleware(['user.api'])->prefix('user')->group(function () {
     //
-    Route::prefix('viewsongs')->group(function () {
-        Route::get('/', [ViewSongController::class, 'index']);
 
-        // Route::post('/', [ViewSongController::class, 'store']);
-        // Route::get('/{viewsong}', [ViewSongController::class, 'show']);
-        // Route::put('/{viewsong}', [ViewSongController::class, 'update']);
-        // Route::delete('/{viewsong}', [ViewSongController::class, 'destroy']);
-    });
+     Route::get('/songs/show-all', [SongController::class, 'index']);
+     
+
+
 
 });
 

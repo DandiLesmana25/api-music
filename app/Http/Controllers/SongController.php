@@ -19,6 +19,15 @@ class SongController extends Controller
     public function index()
     {
         //
+
+        $songs = Song::all();
+        // $song = Song::find();
+
+        return response()->json([
+            'message' => 'Berhasil menampilkan daftar lagu',
+            'statusCode' => 200,
+            'data' => $songs,
+        ], 200);
     }
 
     /**
@@ -102,83 +111,83 @@ class SongController extends Controller
         
     }
 
-    public function add_song(Request $request)
-    {
-        $data = $request->all();
-        $v = Validator::make($data, [
-            'judul' => 'required|string',
-            'cover' => 'required|string',
-            'lagu' => 'required|mimes:mpga,wav,mp3',
-            'tanggal_rilis' => 'required|date',
-            'status' => 'in:pending,published,rejected|default:pending',
-            'id_user' => 'required|integer',
-            'id_label' => 'required|integer',
-        ]);
+    // public function add_song(Request $request)
+    // {
+    //     $data = $request->all();
+    //     $v = Validator::make($data, [
+    //         'judul' => 'required|string',
+    //         'cover' => 'required|string',
+    //         'lagu' => 'required|mimes:mpga,wav,mp3',
+    //         'tanggal_rilis' => 'required|date',
+    //         'status' => 'in:pending,published,rejected|default:pending',
+    //         'id_user' => 'required|integer',
+    //         'id_label' => 'required|integer',
+    //     ]);
 
-        // if ($v->fails()) {
-        //     return response()->json([
-        //         'message' => 'Invalid data',
-        //         'statusCode' => 400,
-        //     ], 400);
-        // }
+    //     // if ($v->fails()) {
+    //     //     return response()->json([
+    //     //         'message' => 'Invalid data',
+    //     //         'statusCode' => 400,
+    //     //     ], 400);
+    //     // }
 
-        $user = User::find($data['id_user']);
-        if (!$user) {
-            return response()->json([
-                'message' => 'user not found',
-                'statusCode' => 404,
-            ], 404);
-        }
+    //     $user = User::find($data['id_user']);
+    //     if (!$user) {
+    //         return response()->json([
+    //             'message' => 'user not found',
+    //             'statusCode' => 404,
+    //         ], 404);
+    //     }
 
-        $label = $data['id_label'] ? Label::find($data['id_label']) : null;
-        if (isset($data['id_label']) && !$label) {
-            return response()->json([
-                'message' => 'Label not found',
-                'statusCode' => 404,
-            ], 404);
-        }
+    //     $label = $data['id_label'] ? Label::find($data['id_label']) : null;
+    //     if (isset($data['id_label']) && !$label) {
+    //         return response()->json([
+    //             'message' => 'Label not found',
+    //             'statusCode' => 404,
+    //         ], 404);
+    //     }
 
       
-        $song = $request->file('song');
+    //     $song = $request->file('song');
 
-        // $lagu = time() . '_' . $lagu->getClientOriginalName();
-        // $fileName = time() . '_' . $lagu->getClientOriginalName();
-        $song->move(public_path('song'), $song);
+    //     // $lagu = time() . '_' . $lagu->getClientOriginalName();
+    //     // $fileName = time() . '_' . $lagu->getClientOriginalName();
+    //     $song->move(public_path('song'), $song);
 
 
-        // $file = $request->file;
+    //     // $file = $request->file;
         
-        // $song = $file->getClientOriginalName();
-        // $file->move('songs/' . $user->id, $song);
+    //     // $song = $file->getClientOriginalName();
+    //     // $file->move('songs/' . $user->id, $song);
 
-        try {
-            $data = $v->validated();
+    //     try {
+    //         $data = $v->validated();
 
-            $song = Song::create([
-                'judul' => $data['judul'],
-                'lagu' => $lagu,
-                'tanggal_rilis' => $data['tanggal_rilis'],
-                'status' => $data['status'] ?? 'pending',
-                'id_user' => $data['id_user'],
-                'id_label' => $data['id_label'] ?? null,
-            ]);
+    //         $song = Song::create([
+    //             'judul' => $data['judul'],
+    //             'lagu' => $lagu,
+    //             'tanggal_rilis' => $data['tanggal_rilis'],
+    //             'status' => $data['status'] ?? 'pending',
+    //             'id_user' => $data['id_user'],
+    //             'id_label' => $data['id_label'] ?? null,
+    //         ]);
 
-            $song['song'] ? $song['song'] = url('song/' . $song['song']) : null;
+    //         $song['song'] ? $song['song'] = url('song/' . $song['song']) : null;
 
-            return response()->json([
-                'message' => 'Create song successful',
-                'statusCode' => 200,
-                'data' => $song,
-            ], 200);
-        } catch (Exception $e) {
-            if (file_exists(public_path('audio/' . $audio_name))) unlink(public_path('audio/' . $audio_name));
+    //         return response()->json([
+    //             'message' => 'Create song successful',
+    //             'statusCode' => 200,
+    //             'data' => $song,
+    //         ], 200);
+    //     } catch (Exception $e) {
+    //         if (file_exists(public_path('audio/' . $audio_name))) unlink(public_path('audio/' . $audio_name));
 
-            return response()->json([
-                'message' => 'Create song failed',
-                'statusCode' => 500,
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'message' => 'Create song failed',
+    //             'statusCode' => 500,
+    //         ], 500);
+    //     }
+    // }
     /**
      * Display the specified resource.
      *
