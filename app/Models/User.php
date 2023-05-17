@@ -3,10 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Playlist;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -36,6 +37,18 @@ class User extends Authenticatable
     public function viewedSongs()
     {
         return $this->hasMany(ViewSong::class, 'id_user');
+    }
+
+    /**
+     * Get all of the playlist for the User
+     *
+     * @return \Illuminate\DatabPlaylistquent\Relaid_userny
+     */
+
+
+     public function playlist(): HasMany
+    {
+        return $this->hasMany(Playlist::class, 'id_user', 'id');
     }
 
     /**

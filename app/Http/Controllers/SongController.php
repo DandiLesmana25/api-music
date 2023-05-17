@@ -197,6 +197,20 @@ class SongController extends Controller
     public function show($id)
     {
         //
+        $song = Song::find($id);
+
+        if (!$song) {
+            return response()->json([
+                'message' => 'Song not found',
+                'statusCode' => 404,
+            ], 404);
+        }
+    
+        return response()->json([
+            'message' => 'Show Song  successfully',
+            'statusCode' => 200,
+            'data' => $song,
+        ], 200);
        
 
     }
