@@ -71,7 +71,10 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::get('/labels/show-all/', [LabelController::class, 'index']);
     Route::get('/labels/show/{id}', [LabelController::class, 'show']);
 
-    Route::post('/playlists', [PlaylistController::class, 'store']);
+    Route::post('/playlists', [PlaylistController::class, 'create_playlist']);
+    Route::get('/playlists', [PlaylistController::class, 'show_all_playlist']);
+    Route::delete('playlists/{id}', [PlaylistController::class, 'delete_playlist']);
+    Route::post('playlists/{id}', [PlaylistController::class, 'update_playlist']);
 
     // update password
     Route::put('update/{id}', [UserController::class, 'update_password']);
