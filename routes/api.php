@@ -52,7 +52,7 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::get('/labels/show-all/', [LabelController::class, 'index']);
     Route::get('/labels/show/{id}', [LabelController::class, 'show']);
 
-    // playlist
+    //add  playlist
 
     Route::post('/playlists', [PlaylistController::class, 'store']);
 });
