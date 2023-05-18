@@ -15,4 +15,21 @@ class Playlist extends Model
     {
         return $this->belongsTo(User::class, 'id_user');
     }
+
+
+    /**
+     * Get all of the comments for the Playlist
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    // public function detailplaylist(): HasMany
+    // {
+    //     return $this->hasMany(detailplaylist::class, 'playlist_id', 'id');
+    // }
+
+    public function detailPlaylists()
+    {
+        return $this->hasMany(DetailPlaylist::class, 'playlist_id', 'id');
+    }
+
 }

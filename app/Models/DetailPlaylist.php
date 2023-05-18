@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Song;
+use App\Models\Playlist;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DetailPlaylist extends Model
 {
-    // use HasFactory;
-    protected $table = detail_playlist;
+    protected $table = 'detail_playlist';
 
     protected $fillable = [
         'playlist_id',
@@ -24,4 +25,6 @@ class DetailPlaylist extends Model
     {
         return $this->belongsTo(Song::class, 'song_id');
     }
+
+    
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\PlaylistController;
+use App\Http\Controllers\DetailPlaylistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,10 +42,10 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
 
     // add song
-    Route::post('/songs', [SongController::class, 'store']);
+    Route::post('songs', [SongController::class, 'store']);
     // view song
-    Route::get('/songs/show-all', [SongController::class, 'index']);
-    Route::get('/songs/{id}', [SongController::class, 'show']);
+    Route::get('songs/show-all', [SongController::class, 'index']);
+    Route::get('songs/{id}', [SongController::class, 'show']);
 
     // label done
     Route::post('/labels', [LabelController::class, 'store'])->name('labels.store');
@@ -53,7 +54,7 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
     //add  playlist
 
-    Route::post('/playlists', [PlaylistController::class, 'store']);
+    Route::post('playlists', [PlaylistController::class, 'store']);
 });
 
 
@@ -75,6 +76,9 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
 
     // update password
     Route::put('update/{id}', [UserController::class, 'update_password']);
+
+    Route::get('playlists/detail-playlists', [DetailPlaylistController::class, 'index']);
+    Route::get('playlists/detail-playlists/{id}', [DetailPlaylistController::class, 'show']);
 });
 
 

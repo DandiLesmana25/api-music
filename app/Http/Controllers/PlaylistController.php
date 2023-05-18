@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Playlist;
 use Illuminate\Http\Request;
+use App\Models\DetailPlaylist;
 use Illuminate\Support\Facades\Validator;
 
 class PlaylistController extends Controller
@@ -63,6 +64,14 @@ class PlaylistController extends Controller
             'status' => $request->input('status'),
             'id_user' => $request->input('id_user'),
         ]);
+        
+        // Menambahkan entri baru di tabel detail_playlist
+        $detailPlaylist = new DetailPlaylist();
+        $detailPlaylist->playlist_id = $playlist->id;
+        $detailPlaylist->song_id = $song->id; // Gantikan dengan ID lagu yang sesuai
+        $detailPlaylist->save();
+
+        
 
         return response()->json([
             'message' => 'Playlist created',

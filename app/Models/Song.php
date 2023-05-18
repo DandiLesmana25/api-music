@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\ViewSong;
+use App\Models\DetailPlaylist;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Song extends Model
 {
-    // use HasFactory;
+    protected $table = 'songs';
+
     protected $fillable = ['judul', 'cover', 'lagu', 'tanggal_rilis', 'status', 'id_user', 'id_label'];
 
     public function user()
@@ -25,4 +28,14 @@ class Song extends Model
     {
         return $this->hasMany(ViewSong::class, 'id_lagu');
     }
+
+
+    public function detailPlaylists()
+    {
+        return $this->hasMany(DetailPlaylist::class, 'song_id', 'id');
+    }
+
+    
+
+    
 }
