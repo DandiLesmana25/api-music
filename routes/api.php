@@ -38,10 +38,11 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::post('register', [AdminController::class, 'register']); // sudah oke
     Route::get('register', [AdminController::class, 'show_register']); // sudah oke
     Route::post('register/{id}', [AdminController::class, 'show_register_by_id']);  // sudah oke
-    Route::put('register/{id}', [AdminController::class, 'update_register']);
+    Route::put('register/{id}', [AdminController::class, 'update_register']); // Sudah Oke
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
 
     // add song
+    // Route::post('/songs', [SongController::class, 'store']);
     Route::post('songs', [SongController::class, 'store']);
     // view song
     Route::get('songs/show-all', [SongController::class, 'index']);
@@ -72,7 +73,10 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::get('/labels/show-all/', [LabelController::class, 'index']);
     Route::get('/labels/show/{id}', [LabelController::class, 'show']);
 
-    Route::post('/playlists', [PlaylistController::class, 'store']);
+    Route::post('/playlists', [PlaylistController::class, 'create_playlist']);
+    Route::get('/playlists', [PlaylistController::class, 'show_all_playlist']);
+    Route::delete('playlists/{id}', [PlaylistController::class, 'delete_playlist']);
+    Route::post('playlists/{id}', [PlaylistController::class, 'update_playlist']);
 
     // update password
     Route::put('update/{id}', [UserController::class, 'update_password']);
@@ -80,8 +84,3 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::get('playlists/detail-playlists', [DetailPlaylistController::class, 'index']);
     Route::get('playlists/detail-playlists/{id}', [DetailPlaylistController::class, 'show']);
 });
-
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });

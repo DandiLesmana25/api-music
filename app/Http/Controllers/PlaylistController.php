@@ -6,50 +6,24 @@ use App\Models\Playlist;
 use Illuminate\Http\Request;
 use App\Models\DetailPlaylist;
 use Illuminate\Support\Facades\Validator;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class PlaylistController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function create_playlist(Request $request)
     {
-        //
-    }
+        $jwt = $request->bearerToken(); //ambil token
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decoce token
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string',
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|in:private,public',
-            'id_user' => 'required|exists:users,id',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Invalid data',
-                'statusCode' => 400,
-                'errors' => $validator->errors(),
-            ], 400);
+            return messageError($validator->messages()->toArray());
         }
 
         $gambarPath = $request->file('gambar');
@@ -62,7 +36,7 @@ class PlaylistController extends Controller
             'nama' => $request->input('nama'),
             'gambar' => $fileimg,
             'status' => $request->input('status'),
-            'id_user' => $request->input('id_user'),
+            'id_user' => $decode->id_login,
         ]);
         
         // Menambahkan entri baru di tabel detail_playlist
@@ -79,48 +53,93 @@ class PlaylistController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+    public function show_all_playlist() {
+        // Mengambil semua daftar putar dari model Playlist
+        $playlists = Playlist::all();
+        
+        // Memeriksa apakah ada daftar putar yang ditemukan
+        if ($playlists->isNotEmpty()) {
+            // Mengubah data daftar putar menjadi array
+            $playlistData = $playlists->toArray();
+            
+            return response()->json([
+                'message' => 'Daftar putar berhasil ditemukan',
+                'data' => $playlistData
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tidak ada daftar putar yang ditemukan',
+                'data' => []
+            ]);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+    public function delete_playlist($id){
+        $playlist = Playlist::find($id);
+
+        if($playlist) {
+            $playlist->delete();
+
+            return response()->json([
+                "data" => [
+                    'message' => 'playlist dengan id '.$id.', berhasil dihapus'
+                ]
+            ],200);
+        }
+
+        return response()->json([
+            "data" => [
+                'message' => 'playlist id: '.$id.', tidak ditemukan'
+            ]
+            ],422);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
+public function update_playlist(Request $request, $id) {
+    // Mengambil data daftar putar yang akan diperbarui
+        $playlist = Playlist::find($id);
+    
+    if ($playlist) {
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'nama' => 'required | string',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|in:private,public',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->messages()->first(),
+            ]);
+        }
+    
+        // Perbarui data daftar putar
+        $playlist->nama = $request->input('nama');
+        $playlist->status = $request->input('status');
+    
+        if ($request->hasFile('gambar')) {
+            $gambarPath = $request->file('gambar');
+            // Ubah nama file yang akan dimasukkan ke server
+            $fileimg = now()->timestamp . "_" . $request->gambar->getClientOriginalName();
+            $gambarPath->move('uploads', $fileimg);
+            $playlist->gambar = $fileimg;
+        }
+    
+        $playlist->save();
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Daftar putar berhasil diperbarui',
+            'data' => $playlist,
+        ]);
+    } else {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Daftar putar tidak ditemukan',
+        ]);
     }
+}
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
+
 }
