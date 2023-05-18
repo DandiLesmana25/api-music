@@ -85,8 +85,7 @@ class AuthController extends Controller
                 'name' => Auth::user()->name,
                 'role' => Auth::user()->role,
                 'iat' => now()->timestamp,
-                'ext' => now()->timestamp + 7200,
-                'name' => Auth::user()->id,
+                'id_login' => Auth::user()->id,
             ];
 
             $token = JWT::encode($playload, env('JWT_SECRET_KEY'), 'HS256');

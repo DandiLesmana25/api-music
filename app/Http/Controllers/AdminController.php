@@ -8,6 +8,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use App\Models\User_Deleted;
 use Illuminate\Support\Facades\Auth;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class AdminController extends Controller
 {
@@ -133,8 +135,11 @@ class AdminController extends Controller
 
     //------------------------------------------------------------------------------//
 
-    public function delete_register($id)
+    public function delete_register($id, Request $request)
     {
+        $jwt = $request->bearerToken(); //ambil token
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decoce token
+
         $user = User::find($id);
 
         if (!$user) {
@@ -146,7 +151,7 @@ class AdminController extends Controller
         User_Deleted::create([
             'name' => $user->name,
             'email' => $user->email,
-            'deleted_by' => '1' // masih belum temu cara
+            'deleted_by' => $decode->id_login
         ]);
 
         $user->delete();
