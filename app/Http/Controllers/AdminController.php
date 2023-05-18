@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use LaravelLang\Publisher\Services\Filesystem\Json;
+use Carbon\Carbon;
+use App\Models\User_Deleted;
+use Illuminate\Support\Facades\Auth;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class AdminController extends Controller
 {
@@ -95,20 +98,20 @@ class AdminController extends Controller
                 'password' => 'min:8',
                 'confirmation_password' => 'same:password',
                 'email' => 'email',
-                'role' => 'required|in:admin,user,contributor',
+                'role' => 'required|in:admin,user,creator',
             ]);
 
             if ($validator->fails()) {
                 return messageError($validator->messages()->toArray());
             }
 
-            $data = $validator->validated();
+            $data = $request->only(['name', 'password', 'email', 'role']);
 
             User::where('id', $id)->update($data);
 
             return response()->json([
                 'data' => [
-                    "msg" => 'user dangan id : ' . $id . ' berhasil di update',
+                    "msg" => 'user dengan id : ' . $id . ' berhasil diupdate',
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'role' => $data['role'],
@@ -118,9 +121,44 @@ class AdminController extends Controller
 
         return response()->json([
             "data" => [
-                'msg' => 'user id : ' . $id . ', tidak ditemukan'
+                'msg' => 'user dengan id: ' . $id . ' tidak ditemukan'
             ]
         ], 422);
+    }
+
+
+    //------------------------------------------------------------------------------//
+
+
+
+
+
+    //------------------------------------------------------------------------------//
+
+    public function delete_register($id, Request $request)
+    {
+        $jwt = $request->bearerToken(); //ambil token
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decoce token
+
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'error' => 'User not found'
+            ], 404);
+        }
+
+        User_Deleted::create([
+            'name' => $user->name,
+            'email' => $user->email,
+            'deleted_by' => $decode->id_login
+        ]);
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'User deleted successfully'
+        ], 200);
     }
 
     //------------------------------------------------------------------------------//

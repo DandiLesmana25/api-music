@@ -3,12 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\SongController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\LabelController;
-use App\Http\Controllers\PlaylistController;
-use App\Http\Controllers\ViewSongController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +31,7 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     // kasih commet kalau sudah
     Route::post('register', [AdminController::class, 'register']); // sudah oke
     Route::get('register', [AdminController::class, 'show_register']); // sudah oke
-    Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);  // sudah oke
+    Route::post('register/{id}', [AdminController::class, 'show_register_by_id']);  // sudah oke
     Route::put('register/{id}', [AdminController::class, 'update_register']);
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
 
@@ -76,9 +70,6 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
 
     // update password
     Route::put('update/{id}', [UserController::class, 'update_password']);
-
-
-
 });
 
 
