@@ -29,10 +29,23 @@ class Song extends Model
         return $this->hasMany(ViewSong::class, 'id_lagu');
     }
 
+    
+
 
     public function detailPlaylists()
     {
         return $this->hasMany(DetailPlaylist::class, 'song_id', 'id');
+    }
+
+
+    /**
+     * Get the genre that owns the Song
+     *
+     * @return \Illuminate\Genrebase\Eloqugenre_idns\BelongsTo
+     */
+    public function genre(): BelongsTo
+    {
+        return $this->belongsTo(Genre::class, 'genre_id', 'other_key');
     }
 
     
