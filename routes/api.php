@@ -37,10 +37,11 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::post('register', [AdminController::class, 'register']); // sudah oke
     Route::get('register', [AdminController::class, 'show_register']); // sudah oke
     Route::post('register/{id}', [AdminController::class, 'show_register_by_id']);  // sudah oke
-    Route::put('register/{id}', [AdminController::class, 'update_register']);
+    Route::put('register/{id}', [AdminController::class, 'update_register']); // Sudah Oke
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
 
     // add song
+    // Route::post('/songs', [SongController::class, 'store']);
     Route::post('/songs', [SongController::class, 'store']);
     // view song
     Route::get('/songs/show-all', [SongController::class, 'index']);
@@ -79,8 +80,3 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     // update password
     Route::put('update/{id}', [UserController::class, 'update_password']);
 });
-
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
