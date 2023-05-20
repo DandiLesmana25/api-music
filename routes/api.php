@@ -41,7 +41,7 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     // User Management
     Route::post('register', [AdminController::class, 'register']);
     Route::get('register', [AdminController::class, 'show_register']);
-    Route::post('register/{id}', [AdminController::class, 'show_register_by_id']);
+    Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);
     Route::put('register/{id}', [AdminController::class, 'update_register']);
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
 
@@ -89,4 +89,9 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
 
     Route::get('playlists/detail-playlists', [DetailPlaylistController::class, 'index']);
     Route::get('playlists/detail-playlists/{id}', [DetailPlaylistController::class, 'show']);
+
+    //User Management
+    Route::get('profile', [UserController::class, 'show_register_by_id']);
+    Route::put('profile/update', [UserController::class, 'update_register']);
+    Route::delete('register/delete', [UserController::class, 'delete_register']);
 });
