@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -66,6 +67,10 @@ class UserController extends Controller
             if ($request->has('password')) {
                 $data['password'] = Hash::make($request->input('password'));
             }
+
+            $user = User::find($decode->id_login);
+            $user->updated_at = Carbon::now();
+            $user->save();
 
             $user->update($data);
 

@@ -40,7 +40,7 @@ class AdminController extends Controller
 
         return response()->json([
             "data" => [
-                'msg' => "Akun berhasil di buat",
+                'message' => "Akun berhasil di buat",
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'role' => $user['role']

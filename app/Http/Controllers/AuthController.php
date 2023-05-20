@@ -9,6 +9,7 @@ use Firebase\JWT\JWT; //memanggil library JWT
 use Illuminate\Support\Facades\Validator; //panggil library validator untuk validasi inputan
 use Illuminate\Support\Facades\Auth; //panggil library untuk otrntikasi
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -32,6 +33,8 @@ class AuthController extends Controller
         }
 
         $user = $validator->validated();
+        $user['created_at'] = Carbon::now();
+        $user['updated_at'] = Carbon::now();
 
 
         //masukkan user ke database user 
@@ -42,7 +45,6 @@ class AuthController extends Controller
             'name' => $user['name'],
             'role' => 'user',
             'iat' => now()->timestamp,
-            'exp' => now()->timestamp + 7200
         ];
 
         // generate token dengan algoritma HS256
@@ -58,7 +60,7 @@ class AuthController extends Controller
         // kirim respons ke pengguna 
         return response()->json([
             "data" => [
-                'msg' => "Berhasil Register",
+                'message' => "Berhasil Register",
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'role' => 'user',
@@ -66,6 +68,7 @@ class AuthController extends Controller
             "token" => "Beare {$token}"
         ], 200);
     }
+
 
     public function login(Request $request)
     {
@@ -96,9 +99,13 @@ class AuthController extends Controller
                 'useraccess' => Auth::user()->email
             ]);
 
+            $user = User::find(Auth::user()->id);
+            $user->last_login = Carbon::now();
+            $user->save();
+
             return response()->json([
                 "data" => [
-                    'msg' => "berhasil login",
+                    'message' => "Berhasil login",
                     'id' => Auth::user()->id,
                     'name' => Auth::user()->name,
                     'email' => Auth::user()->email,

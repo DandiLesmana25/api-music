@@ -21,7 +21,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        // 'role',
         'last_login'
     ];
 
@@ -49,6 +48,12 @@ class User extends Authenticatable
     public function request_creator($value)
     {
         $this->req_upgrade = $value;
+        $this->save();
+    }
+
+    public function last_login()
+    {
+        $this->req_upgrade = now()->timestamp;
         $this->save();
     }
 }

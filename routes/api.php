@@ -27,8 +27,6 @@ use App\Http\Controllers\MusicController;
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
-// Untuk Admin
-Route::post('song/add', [SongController::class, 'add_song']);
 
 
 /*
