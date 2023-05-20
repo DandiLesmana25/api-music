@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -25,7 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        // 'role',
         'last_login'
     ];
 
@@ -33,7 +34,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Song::class, 'id_user');
     }
-    
+
     public function viewedSongs()
     {
         return $this->hasMany(ViewSong::class, 'id_user');
@@ -46,10 +47,10 @@ class User extends Authenticatable
      */
 
 
-     public function playlist(): HasMany
-    {
-        return $this->hasMany(Playlist::class, 'id_user', 'id');
-    }
+    // public function playlist(): HasMany
+    // {
+    //     return $this->hasMany(Playlist::class, 'id_user', 'id');
+    // }
 
     /**
      * The attributes that should be hidden for serialization.

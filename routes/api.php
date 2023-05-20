@@ -10,6 +10,8 @@ use App\Http\Controllers\LabelController;
 use App\Http\Controllers\PlaylistController;
 use App\Http\Controllers\DetailPlaylistController;
 
+use App\Http\Controllers\MusicController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -25,6 +27,9 @@ use App\Http\Controllers\DetailPlaylistController;
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
+// Untuk Admin
+Route::post('song/add', [SongController::class, 'add_song']);
+
 
 /*
 admin routes  
@@ -33,20 +38,21 @@ routes untuk admin, dimana terdapat middleware admin dan juga prefix awalan url 
 
 Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
-    // controller dan function belum di buat semua ya
-    // kasih commet kalau sudah
-    Route::post('register', [AdminController::class, 'register']); // sudah oke
-    Route::get('register', [AdminController::class, 'show_register']); // sudah oke
-    Route::post('register/{id}', [AdminController::class, 'show_register_by_id']);  // sudah oke
-    Route::put('register/{id}', [AdminController::class, 'update_register']); // Sudah Oke
+    // User Management
+    Route::post('register', [AdminController::class, 'register']);
+    Route::get('register', [AdminController::class, 'show_register']);
+    Route::post('register/{id}', [AdminController::class, 'show_register_by_id']);
+    Route::put('register/{id}', [AdminController::class, 'update_register']);
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
 
-    // add song
-    // Route::post('/songs', [SongController::class, 'store']);
-    Route::post('songs', [SongController::class, 'store']);
-    // view song
-    Route::get('songs/show-all', [SongController::class, 'index']);
-    Route::get('songs/{id}', [SongController::class, 'show']);
+
+    // Music Management
+    Route::post('song/add', [AdminController::class, 'add_song']);
+    Route::get('song', [AdminController::class, 'songs_index']);
+    Route::get('song/{id}', [AdminController::class, 'songs_index_id']);
+    Route::put('song/edit/{id}', [AdminController::class, 'edit_song']);
+    Route::delete('song/delete/{id}', [AdminController::class, 'delete_song']);
+
 
     // label done
     Route::post('/labels', [LabelController::class, 'store'])->name('labels.store');
