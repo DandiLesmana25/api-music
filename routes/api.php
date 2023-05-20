@@ -42,6 +42,8 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);
     Route::put('register/{id}', [AdminController::class, 'update_register']);
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);
+    Route::get('creator', [AdminController::class, 'request_creator']);
+    Route::get('creator', [AdminController::class, 'request_creator']);
 
 
     // Music Management

@@ -56,7 +56,7 @@ class AdminController extends Controller
 
         return response()->json([
             "data" => [
-                'msg' => "User registration",
+                'message' => "User registration",
                 'data' => $users
             ]
         ], 200);
@@ -71,7 +71,7 @@ class AdminController extends Controller
 
         return response()->json([
             "data" => [
-                'msg' => "user id:{$id}",
+                'message' => "user id:{$id}",
                 'data' => $user
             ]
         ], 200);
@@ -101,7 +101,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'data' => [
-                    "msg" => 'user dengan id : ' . $id . ' berhasil diupdate',
+                    "message" => 'user dengan id : ' . $id . ' berhasil diupdate',
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'role' => $data['role'],
@@ -111,7 +111,7 @@ class AdminController extends Controller
 
         return response()->json([
             "data" => [
-                'msg' => 'user dengan id: ' . $id . ' tidak ditemukan'
+                'message' => 'user dengan id: ' . $id . ' tidak ditemukan'
             ]
         ], 422);
     }
@@ -126,7 +126,7 @@ class AdminController extends Controller
 
         if (!$user) {
             return response()->json([
-                'error' => 'User not found'
+                'error' => 'User tidak di temukan'
             ], 404);
         }
 
@@ -139,7 +139,22 @@ class AdminController extends Controller
         $user->delete();
 
         return response()->json([
-            'message' => 'User deleted successfully'
+            'message' => 'User berhasil di hapus'
+        ], 200);
+    }
+
+
+    //Menampilkan akun yang request creator
+    public function request_creator()
+    {
+
+        $users = User::where('req_upgrade', 'request')->get();
+
+        return response()->json([
+            "data" => [
+                'message' => "User yang request menjadi creator",
+                'data' => $users
+            ]
         ], 200);
     }
 
