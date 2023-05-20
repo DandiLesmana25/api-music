@@ -93,5 +93,5 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     //User Management
     Route::get('profile', [UserController::class, 'show_register_by_id']);
     Route::put('profile/update', [UserController::class, 'update_register']);
-    Route::delete('register/delete', [UserController::class, 'delete_register']);
+    Route::post('profile/creator', [UserController::class, 'request_creator']);
 });

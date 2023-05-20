@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -29,18 +30,20 @@ class UserController extends Controller
 
         return response()->json([
             "data" => [
-                'message' => "user id:{$decode->id_login}",
+                'message' => "user id : {$decode->id_login}",
                 'data' => $user
             ]
         ], 200);
     }
 
-    //Update akun via admin
+    //Update akun 
     public function update_register(Request $request)
     {
-
         $jwt = $request->bearerToken(); //ambil token
-        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decoce token
+        $decode = JWT::decode(
+            $jwt,
+            new Key(env('JWT_SECRET_KEY'), 'HS256')
+        ); //decode token
 
         $user = User::find($decode->id_login);
 
@@ -56,9 +59,15 @@ class UserController extends Controller
                 return messageError($validator->messages()->toArray());
             }
 
-            $data = $request->only(['name', 'password', 'email']);
+            $data = $request->only([
+                'name', 'password', 'email'
+            ]);
 
-            User::where('id', $decode->id_login)->update($data);
+            if ($request->has('password')) {
+                $data['password'] = Hash::make($request->input('password'));
+            }
+
+            $user->update($data);
 
             return response()->json([
                 'data' => [
@@ -77,33 +86,39 @@ class UserController extends Controller
     }
 
 
-
-    //Hapus akun via admin
-    public function delete_register(Request $request)
+    public function request_creator(Request $request)
     {
-        $jwt = $request->bearerToken(); //ambil token
-        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decoce token
+        $jwt = $request->bearerToken(); // Ambil token
+
+        $decode = JWT::decode(
+            $jwt,
+            new Key(env('JWT_SECRET_KEY'), 'HS256')
+        ); // Decode token
 
         $user = User::find($decode->id_login);
 
         if (!$user) {
             return response()->json([
-                'error' => 'User not found'
-            ], 404);
+                "data" => [
+                    'message' => 'id : ' . $decode->id_login . ' tidak ditemukan'
+                ]
+            ], 422);
         }
 
-        User_Deleted::create([
-            'name' => $user->name,
-            'email' => $user->email,
-            'deleted_by' => $decode->id_login
-        ]);
-
-        $user->delete();
+        $user->request_creator = $request->input('request');
 
         return response()->json([
-            'message' => 'User berhasil di hapus'
+            'data' => [
+                "message" => 'id : ' . $decode->id_login . ' berhasil meminta request creator',
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
         ], 200);
     }
+
+
+
+
 
     //*********************************** U S E R   M A N A  G E M E N T ********************************//
 }
