@@ -193,5 +193,35 @@ class UserController extends Controller
         ], 200);
     }
 
+
+    public function trending(Request $request)
+    {
+        $mondayLastWeek = Carbon::now()->subWeek()->startOfWeek()->addDay(); // Ambil hari Senin satu minggu yang lalu
+
+        $popularSongs = ViewSong::where('created_at', '>', $mondayLastWeek)
+            ->groupBy('id_lagu')
+            ->orderByRaw('COUNT(*) DESC')
+            ->take(5)
+            ->pluck('id_lagu');
+
+        $songs = Song::whereIn('id', $popularSongs)->get();
+
+        if ($songs->isEmpty()) {
+            return response()->json(
+                [
+                    'message' => 'Tidak ada lagu yang paling banyak diputar dalam satu minggu terakhir',
+                    'statusCode' => 404,
+                ],
+                404
+            );
+        }
+
+        return response()->json([
+            'message' => '5 lagu yang paling banyak diputar dalam satu minggu terakhir',
+            'statusCode' => 200,
+            'data' => $songs,
+        ], 200);
+    }
+
     //*********************************** M U S I C   M A N A G E M E N T *******************************//
 }

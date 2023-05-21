@@ -105,4 +105,5 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     //Music management
     Route::get('song/{id}', [UserController::class, 'songs_index_id']);
     Route::get('lastplay', [UserController::class, 'last_play']);
+    Route::get('trending', [UserController::class, 'trending']);
 });
