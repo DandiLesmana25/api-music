@@ -32,7 +32,7 @@ class UserController extends Controller
         return response()->json([
             "data" => [
                 'message' => "user id : {$decode->id_login}",
-                'data' => $user
+                'user' => $user
             ]
         ], 200);
     }
@@ -76,7 +76,7 @@ class UserController extends Controller
 
             return response()->json([
                 'data' => [
-                    "message" => 'id : ' . $decode->id_login . ' berhasil diupdate',
+                    "message" => 'id ' . $decode->id_login . ' berhasil diupdate',
                     'name' => $data['name'],
                     'email' => $data['email'],
                 ]
@@ -110,11 +110,13 @@ class UserController extends Controller
             ], 422);
         }
 
-        $user->request_creator = $request->input('request');
+        // Ubah nilai kolom req_upgrade
+        $user->req_upgrade = 'request';
+        $user->save();
 
         return response()->json([
             'data' => [
-                "message" => 'id : ' . $decode->id_login . ' berhasil meminta request creator',
+                "message" => 'Berhasil request creator',
                 'name' => $user->name,
                 'email' => $user->email,
             ]

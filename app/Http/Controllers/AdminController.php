@@ -95,13 +95,17 @@ class AdminController extends Controller
                 return messageError($validator->messages()->toArray());
             }
 
-            $data = $request->only(['name', 'password', 'email', 'role']);
+            $data = $request->only(['name', 'email', 'role']);
+
+            if ($request->has('password')) {
+                $data['password'] = bcrypt($request->password);
+            }
 
             User::where('id', $id)->update($data);
 
             return response()->json([
                 'data' => [
-                    "message" => 'user dengan id : ' . $id . ' berhasil diupdate',
+                    "message" => 'User dengan id ' . $id . ' berhasil diupdate',
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'role' => $data['role'],
@@ -111,7 +115,7 @@ class AdminController extends Controller
 
         return response()->json([
             "data" => [
-                'message' => 'user dengan id: ' . $id . ' tidak ditemukan'
+                'message' => 'User dengan id ' . $id . ' tidak ditemukan'
             ]
         ], 422);
     }
@@ -154,6 +158,83 @@ class AdminController extends Controller
             "data" => [
                 'message' => "User yang request menjadi creator",
                 'data' => $users
+            ]
+        ], 200);
+    }
+
+
+    public function approve_creator(Request $request, $id)
+    {
+        $jwt = $request->bearerToken(); // Ambil token
+
+        $decode = JWT::decode(
+            $jwt,
+            new Key(
+                env('JWT_SECRET_KEY'),
+                'HS256'
+            )
+        ); // Decode token
+
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                "data" => [
+                    'message' => 'id : ' . $id . ' tidak ditemukan'
+                ]
+            ], 422);
+        }
+
+
+        // Ubah nilai kolom req_upgrade
+        $user->req_upgrade = 'creator';
+        $user->role = 'creator';
+        $user->save();
+
+        return response()->json([
+            'data' => [
+                "message" => 'id ' . $id . ' Berhasil menjadi creator',
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]
+        ], 200);
+    }
+
+
+    public function reset_password(Request $request, $id)
+    {
+        $jwt = $request->bearerToken(); // Ambil token
+
+        $decode = JWT::decode(
+            $jwt,
+            new Key(
+                env('JWT_SECRET_KEY'),
+                'HS256'
+            )
+        ); // Decode token
+
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                "data" => [
+                    'message' => 'id : ' . $id . ' tidak ditemukan'
+                ]
+            ], 422);
+        }
+
+
+        // Ubah nilai kolom req_upgrade
+        $user->password = bcrypt('user');
+        $user->save();
+
+        return response()->json([
+            'data' => [
+                "message" => 'id ' . $id . ' Berhasil reset  password',
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
             ]
         ], 200);
     }

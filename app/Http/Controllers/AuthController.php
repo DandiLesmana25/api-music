@@ -106,10 +106,12 @@ class AuthController extends Controller
             return response()->json([
                 "data" => [
                     'message' => "Berhasil login",
-                    'id' => Auth::user()->id,
-                    'name' => Auth::user()->name,
-                    'email' => Auth::user()->email,
-                    'role' => Auth::user()->role,
+                    "user" => [
+                        'id' => Auth::user()->id,
+                        'name' => Auth::user()->name,
+                        'email' => Auth::user()->email,
+                        'role' => Auth::user()->role,
+                    ]
                 ],
                 "token" => "Bearer {$token}"
             ], 200);
