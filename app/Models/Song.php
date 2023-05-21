@@ -19,10 +19,6 @@ class Song extends Model
         return $this->belongsTo(User::class, 'id_user');
     }
 
-    public function label()
-    {
-        return $this->belongsTo(Label::class, 'id_label');
-    }
 
     public function viewedSong()
     {

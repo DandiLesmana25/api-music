@@ -294,7 +294,7 @@ class AdminController extends Controller
             'lagu' => 'required|file|mimes:mp3',
             'tanggal_rilis' => 'required|date',
             'status' => 'required|in:pending,published,unpublished',
-            'id_label' => 'nullable|exists:labels,id',
+            // 'id_label' => 'nullable|exists:labels,id',
             'id_album' => 'nullable|exists:albums,id',
             'mood' => 'nullable|in:Bahagia, Sedih, Romantis, Santai, Enerjik, Motivasi, Eksperimental, Sentimental, Menghibur, Gelisah, Inspiratif, Tenang, Semangat, Melankolis, Penuh energi, Memikat, Riang, Reflektif, Optimis, Bersemangat',
             'genre' => 'nullable|in:Pop, Rock, Hip-Hop, R&B, Country, Jazz, Electronic, Dance, Reggae, Folk, Classical, Alternative, Indie, Metal, Punk, Blues, Soul, Funk, Latin, World',
@@ -332,7 +332,6 @@ class AdminController extends Controller
         $song->tanggal_rilis = $request->tanggal_rilis;
         $song->status = $request->status ?? 'pending'; // Menggunakan nilai default 'pending' jika status tidak disertakan dalam request
         $song->id_user = $decode->id_login;
-        $song->id_label = $request->id_label;
         $song->id_album = $request->id_album;
         $song->mood = $request->mood;
         $song->genre = $request->genre;
@@ -405,11 +404,13 @@ class AdminController extends Controller
 
         $validator = Validator::make($request->all(), [
             'judul' => 'required|string',
-            'cover' => 'nullable|mimes:png,jpg,jpeg|max:2048',
-            'lagu' => 'nullable|file|mimes:mp3',
+            'cover' => 'required|mimes:png,jpg,jpeg|max:2048',
+            'lagu' => 'required|file|mimes:mp3',
             'tanggal_rilis' => 'required|date',
             'status' => 'required|in:pending,published,unpublished',
-            'id_label' => 'nullable|exists:labels,id',
+            'id_album' => 'nullable|exists:albums,id',
+            'mood' => 'nullable|in:Bahagia, Sedih, Romantis, Santai, Enerjik, Motivasi, Eksperimental, Sentimental, Menghibur, Gelisah, Inspiratif, Tenang, Semangat, Melankolis, Penuh energi, Memikat, Riang, Reflektif, Optimis, Bersemangat',
+            'genre' => 'nullable|in:Pop, Rock, Hip-Hop, R&B, Country, Jazz, Electronic, Dance, Reggae, Folk, Classical, Alternative, Indie, Metal, Punk, Blues, Soul, Funk, Latin, World',
         ]);
 
         if ($validator->fails()) {
@@ -444,7 +445,6 @@ class AdminController extends Controller
         $song->judul = $request->judul;
         $song->tanggal_rilis = $request->tanggal_rilis;
         $song->status = $request->status;
-        $song->id_label = $request->id_label;
 
         // Cek apakah ada file cover yang diunggah
         if ($request->hasFile('cover')) {
@@ -486,7 +486,7 @@ class AdminController extends Controller
         $song->save();
 
         return response()->json([
-            'message' => 'Song updated successfully',
+            'message' => 'Lagu berhasil di sunting',
             'status' => 200,
             'data' => [
                 'judul' => $song->judul,
