@@ -12,7 +12,7 @@ class Song extends Model
 {
     protected $table = 'songs';
 
-    protected $fillable = ['judul', 'cover', 'lagu', 'tanggal_rilis', 'status', 'id_user', 'id_label'];
+    protected $fillable = ['judul', 'cover', 'lagu', 'tanggal_rilis', 'status', 'id_user', 'id_album', 'mood', 'genre'];
 
     public function user()
     {
@@ -29,7 +29,6 @@ class Song extends Model
         return $this->hasMany(ViewSong::class, 'id_lagu');
     }
 
-    
 
 
     public function detailPlaylists()
@@ -43,12 +42,4 @@ class Song extends Model
      *
      * @return \Illuminate\Genrebase\Eloqugenre_idns\BelongsTo
      */
-    public function genre(): BelongsTo
-    {
-        return $this->belongsTo(Genre::class, 'genre_id', 'other_key');
-    }
-
-    
-
-    
 }
