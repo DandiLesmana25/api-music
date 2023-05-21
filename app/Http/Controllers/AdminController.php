@@ -523,7 +523,6 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'judul' => 'required|string',
             'cover' => 'required|mimes:png,jpg,jpeg|max:2048',
-            'artis' => 'required|string',
             'tanggal_rilis' => 'nullable|date',
             'genre' => 'nullable|string',
             'status' => 'nullable|in:private,public',
@@ -549,8 +548,8 @@ class AdminController extends Controller
 
         $album = new Album();
         $album->judul = $request->input('judul');
-        $album->artis = $request->input('artis');
-        $album->cover = $coverUrl;
+        $album->artis = $decode->name;
+        $album->cover = $coverPath;
         $album->tanggal_rilis = $request->input('tanggal_rilis');
         $album->status = $request->input('status', 'private');
         $album->id_user = $decode->id_login;
@@ -561,6 +560,133 @@ class AdminController extends Controller
             'message' => 'Album berhasil disimpan',
             'status' => 200,
             'data' => $album,
+        ], 200);
+    }
+
+    public function albums_index()
+    {
+        //
+
+        $albums = Album::all();
+
+        return response()->json([
+            'message' => 'Berhasil menampilkan daftar album',
+            'statusCode' => 200,
+            'data' => $albums,
+        ], 200);
+    }
+
+
+    public function albums_index_id($id)
+    {
+
+        $song = Album::find($id);
+
+        if (!$song) {
+            return response()->json(
+                [
+                    'message' => 'Album Tidak di Temukan',
+                    'statusCode' => 404,
+                ],
+                404
+            );
+        }
+
+        return response()->json([
+            'message' => 'Album dengan id : ' . $id,
+            'statusCode' => 200,
+            'data' => $song,
+        ], 200);
+    }
+
+    public function edit_album(Request $request, $id)
+    {
+        $jwt = $request->bearerToken(); // Ambil token
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); // Decode token
+
+        $validator = Validator::make($request->all(), [
+            'judul' => 'required|string',
+            'cover' => 'required|mimes:png,jpg,jpeg|max:2048',
+            'tanggal_rilis' => 'nullable|date',
+            'genre' => 'nullable|string',
+            'status' => 'nullable|in:private,public',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'message' => 'Data tidak valid',
+                    'status' => 400,
+                    'errors' => $validator->errors(),
+                ],
+                400
+            );
+        }
+
+        $album = Album::find($id);
+
+        if (!$album) {
+            return response()->json([
+                'message' => 'Album tidak di temukan',
+                'status' => 404,
+            ], 404);
+        }
+
+        // Periksa apakah pengguna memiliki hak akses untuk mengedit album
+        if ($decode->id_login != $album->id_user) {
+            return response()->json([
+                'message' => 'Unauthorized',
+                'status' => 401,
+            ], 401);
+        }
+
+        // Update data lagu
+        $album->judul = $request->judul;
+        $album->tanggal_rilis = $request->tanggal_rilis;
+        $album->genre = $request->genre;
+        $album->status = $request->status;
+
+
+        // Cek apakah ada file cover yang diunggah
+        if ($request->hasFile('cover')) {
+            $cover = $request->file('cover');
+            $coverExtension = $cover->getClientOriginalExtension();
+            $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
+            $coverPath = 'album/' . $coverName;
+            $cover->move(public_path('album'), $coverPath);
+            $coverUrl = asset($coverPath);
+
+            // Menghapus file cover lama jika ada
+            if ($album->cover && Storage::exists($album->cover)) {
+                Storage::delete(parse_url(
+                    $album->cover,
+                    PHP_URL_PATH
+                ));
+            }
+
+            $album->cover = $coverUrl;
+        }
+
+        $album->save();
+
+        return response()->json([
+            'message' => 'Album berhasil di update',
+            'status' => 200,
+            'data' => $album,
+        ], 200);
+    }
+
+
+    public function delete_album($id)
+    {
+
+        Album::where('id', $id)->delete();
+
+        return response()->json([
+            "data" => [
+                "message" => "Album berhasil di hapus",
+                "id" => $id
+            ]
         ], 200);
     }
 }
