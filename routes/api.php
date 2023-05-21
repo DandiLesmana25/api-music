@@ -62,11 +62,16 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
     // ALBUM
     Route::post('album/add', [AdminController::class, 'add_album']);
+    Route::get('albums', [AdminController::class, 'albums_index']);
+    Route::get('albums/{id}', [AdminController::class, 'albums_index_id']);
+    Route::put('albums/edit/{id}', [AdminController::class, 'edit_album']);
+    Route::delete('albums/delete/{id}', [AdminController::class, 'delete_album']);
 
     // label done
     Route::post('/labels', [LabelController::class, 'store'])->name('labels.store');
     Route::get('/labels/show-all/', [LabelController::class, 'index']);
     Route::get('/labels/show/{id}', [LabelController::class, 'show']);
+
 
     //add  playlist
 
