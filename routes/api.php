@@ -81,7 +81,6 @@ routes untuk user, dimana terdapat middleware admin dan juga prefix awalan url "
 Route::middleware(['user.api'])->prefix('user')->group(function () {
     //
     Route::get('/songs/show-all', [SongController::class, 'index']);
-    Route::get('/songs/{id}', [SongController::class, 'show']);
 
     Route::get('/labels/show-all/', [LabelController::class, 'index']);
     Route::get('/labels/show/{id}', [LabelController::class, 'show']);
@@ -101,4 +100,8 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::get('profile', [UserController::class, 'show_register_by_id']);
     Route::put('profile/update', [UserController::class, 'update_register']);
     Route::post('profile/creator', [UserController::class, 'request_creator']);
+
+
+    //Music management
+    Route::get('song/{id}', [UserController::class, 'songs_index_id']);
 });

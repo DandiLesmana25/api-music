@@ -11,6 +11,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 use App\Models\User;
+use App\Models\Song;
 use App\Models\User_Deleted;
 
 class UserController extends Controller
@@ -124,8 +125,29 @@ class UserController extends Controller
     }
 
 
-
-
-
     //*********************************** U S E R   M A N A  G E M E N T ********************************//
+
+
+    //Putar lagu
+    public function songs_index_id($id)
+    {
+
+        $song = Song::find($id);
+
+        if (!$song) {
+            return response()->json(
+                [
+                    'message' => 'Lagu Tidak di Temukan',
+                    'statusCode' => 404,
+                ],
+                404
+            );
+        }
+
+        return response()->json([
+            'message' => 'Lagu dengan id : ' . $id,
+            'statusCode' => 200,
+            'data' => $song,
+        ], 200);
+    }
 }

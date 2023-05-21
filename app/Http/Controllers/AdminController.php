@@ -20,6 +20,7 @@ class AdminController extends Controller
 {
 
     //**************************************** D A S H B O A R D *****************************************//
+
     public function dashboard()
     {
         $userCount = User::where('role', 'user')->count();
@@ -44,7 +45,6 @@ class AdminController extends Controller
 
         return response()->json($result);
     }
-
 
     //**************************************** D A S H B O A R D *****************************************//
 
