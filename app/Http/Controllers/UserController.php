@@ -12,6 +12,7 @@ use Firebase\JWT\Key;
 
 use App\Models\User;
 use App\Models\Song;
+use App\Models\ViewSong;
 use App\Models\User_Deleted;
 
 class UserController extends Controller
@@ -128,9 +129,14 @@ class UserController extends Controller
     //*********************************** U S E R   M A N A  G E M E N T ********************************//
 
 
+
+    //*********************************** M U S I C   M A N A G E M E N T *******************************//
+
     //Putar lagu
-    public function songs_index_id($id)
+    public function songs_index_id($id, Request $request)
     {
+        $jwt = $request->bearerToken(); //ambil token
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decode token
 
         $song = Song::find($id);
 
@@ -144,10 +150,48 @@ class UserController extends Controller
             );
         }
 
+        // BUAT LOGIN 
+        ViewSong::create([
+            'id_lagu' => $id,
+            'id_user' => $decode->id_login,
+        ]);
+
         return response()->json([
             'message' => 'Lagu dengan id : ' . $id,
             'statusCode' => 200,
             'data' => $song,
         ], 200);
     }
+
+
+    public function last_play(Request $request)
+    {
+        $jwt = $request->bearerToken(); //ambil token
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decode token
+
+        $latestSongs = ViewSong::where('id_user', $decode->id_login)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->pluck('id_lagu');
+
+        $songs = Song::whereIn('id', $latestSongs)->get();
+
+        if ($songs->isEmpty()) {
+            return response()->json(
+                [
+                    'message' => 'Tidak ada lagu terbaru yang diputar',
+                    'statusCode' => 404,
+                ],
+                404
+            );
+        }
+
+        return response()->json([
+            'message' => '5 lagu terbaru yang terakhir diputar oleh pengguna',
+            'statusCode' => 200,
+            'data' => $songs,
+        ], 200);
+    }
+
+    //*********************************** M U S I C   M A N A G E M E N T *******************************//
 }
