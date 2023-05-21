@@ -16,7 +16,40 @@ use App\Models\User_Deleted;
 
 
 class AdminController extends Controller
+
 {
+
+    //**************************************** D A S H B O A R D *****************************************//
+    public function dashboard()
+    {
+        $userCount = User::where('role', 'user')->count();
+        $creatorCount = User::where('role', 'creator')->count();
+
+        $startDate = now()->subWeek()->startOfDay();
+        $endDate = now()->endOfDay();
+
+        $songCount = Song::whereBetween('tanggal_rilis', [$startDate, $endDate])->count();
+        $userUpdate = User::whereBetween('created_at', [$startDate, $endDate])->count();
+
+        $result = [
+            "user_statistics" => [
+                'user_count' => $userCount,
+                'creator_count' => $creatorCount,
+            ],
+            "recent_activity" => [
+                'song_count' => $songCount,
+                'user_count' => $userUpdate,
+            ]
+        ];
+
+        return response()->json($result);
+    }
+
+
+    //**************************************** D A S H B O A R D *****************************************//
+
+
+
 
     //*********************************** U S E R   M A N A  G E M E N T ********************************//
 

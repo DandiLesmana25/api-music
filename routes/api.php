@@ -57,6 +57,10 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::delete('song/delete/{id}', [AdminController::class, 'delete_song']);
 
 
+    // DASHBOARD
+    Route::get('dashboard', [AdminController::class, 'dashboard']);
+
+
     // label done
     Route::post('/labels', [LabelController::class, 'store'])->name('labels.store');
     Route::get('/labels/show-all/', [LabelController::class, 'index']);
