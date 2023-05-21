@@ -11,6 +11,7 @@ use Firebase\JWT\Key;
 
 use App\Models\Song;
 use App\Models\User;
+use App\Models\Album;
 use App\Models\User_Deleted;
 
 
@@ -284,7 +285,6 @@ class AdminController extends Controller
     //Menambah Lagu
     public function add_song(Request $request)
     {
-
         $jwt = $request->bearerToken(); //ambil token
         $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decode token
 
@@ -294,8 +294,10 @@ class AdminController extends Controller
             'lagu' => 'required|file|mimes:mp3',
             'tanggal_rilis' => 'required|date',
             'status' => 'required|in:pending,published,unpublished',
-            // 'id_user' => 'required|exists:users,id',
             'id_label' => 'nullable|exists:labels,id',
+            'id_album' => 'nullable|exists:albums,id',
+            'mood' => 'nullable|in:Bahagia, Sedih, Romantis, Santai, Enerjik, Motivasi, Eksperimental, Sentimental, Menghibur, Gelisah, Inspiratif, Tenang, Semangat, Melankolis, Penuh energi, Memikat, Riang, Reflektif, Optimis, Bersemangat',
+            'genre' => 'nullable|in:Pop, Rock, Hip-Hop, R&B, Country, Jazz, Electronic, Dance, Reggae, Folk, Classical, Alternative, Indie, Metal, Punk, Blues, Soul, Funk, Latin, World',
         ]);
 
         if ($validator->fails()) {
@@ -331,11 +333,14 @@ class AdminController extends Controller
         $song->status = $request->status ?? 'pending'; // Menggunakan nilai default 'pending' jika status tidak disertakan dalam request
         $song->id_user = $decode->id_login;
         $song->id_label = $request->id_label;
+        $song->id_album = $request->id_album;
+        $song->mood = $request->mood;
+        $song->genre = $request->genre;
         $song->save();
 
         return response()->json(
             [
-                'message' => 'Lagu berhasil di unggah',
+                'message' => 'Lagu berhasil diunggah',
                 'status' => 200,
                 'data' => [
                     'judul' => $song->judul,
@@ -345,11 +350,15 @@ class AdminController extends Controller
                     'status' => $song->status,
                     'id_user' => $song->id_user,
                     'id_label' => $song->id_label,
+                    'id_album' => $song->id_album,
+                    'mood' => $song->mood,
+                    'genre' => $song->genre,
                 ],
             ],
             200
         );
     }
+
 
     //Menampilkan lagu
     public function songs_index()
@@ -507,4 +516,51 @@ class AdminController extends Controller
 
     //********************************** M U S I C   M A N A  G E M E N T *******************************//
 
+
+
+    public function add_album(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'judul' => 'required|string',
+            'cover' => 'required|mimes:png,jpg,jpeg|max:2048',
+            'artis' => 'required|string',
+            'tanggal_rilis' => 'nullable|date',
+            'genre' => 'nullable|string',
+            'status' => 'nullable|in:private,public',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Data tidak valid',
+                'status' => 400,
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $jwt = $request->bearerToken();
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
+
+        $cover = $request->file('cover');
+        $coverExtension = $cover->getClientOriginalExtension();
+        $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
+        $coverPath = 'album/' . $coverName;
+        $cover->move(public_path('album'), $coverPath);
+        $coverUrl = asset($coverPath);
+
+        $album = new Album();
+        $album->judul = $request->input('judul');
+        $album->artis = $request->input('artis');
+        $album->cover = $coverUrl;
+        $album->tanggal_rilis = $request->input('tanggal_rilis');
+        $album->status = $request->input('status', 'private');
+        $album->id_user = $decode->id_login;
+        $album->genre = $request->input('genre');
+        $album->save();
+
+        return response()->json([
+            'message' => 'Album berhasil disimpan',
+            'status' => 200,
+            'data' => $album,
+        ], 200);
+    }
 }

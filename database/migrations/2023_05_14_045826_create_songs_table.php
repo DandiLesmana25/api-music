@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateSongsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -21,10 +21,17 @@ return new class extends Migration
             $table->date('tanggal_rilis');
             $table->enum('status', ['pending', 'published', 'unpublished']);
             $table->unsignedBigInteger('id_user');
-            $table->unsignedBigInteger('id_label')->nullable()->default(null);
+            $table->unsignedBigInteger('id_album')->nullable()->default(null);
+            $table->string('mood')->nullable();
+            $table->string('genre')->nullable();
             $table->foreign('id_user')->references('id')->on('users');
-            $table->foreign('id_label')->references('id')->on('labels')->onDelete('set null');
+            $table->foreign('id_album')->references('id')->on('albums')->onDelete('set null');
             $table->timestamps();
+        });
+
+        Schema::table('songs', function (Blueprint $table) {
+            $table->index('id_user');
+            $table->index('id_album');
         });
     }
 
@@ -37,4 +44,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('songs');
     }
-};
+}

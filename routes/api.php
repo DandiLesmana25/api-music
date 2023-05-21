@@ -60,6 +60,8 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     // DASHBOARD
     Route::get('dashboard', [AdminController::class, 'dashboard']);
 
+    // ALBUM
+    Route::post('album/add', [AdminController::class, 'add_album']);
 
     // label done
     Route::post('/labels', [LabelController::class, 'store'])->name('labels.store');
