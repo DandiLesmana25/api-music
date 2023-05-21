@@ -51,7 +51,7 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
     // Music Management
     Route::post('song/add', [AdminController::class, 'add_song']);
-    Route::get('song', [AdminController::class, 'songs_index']);
+    Route::get('songs', [AdminController::class, 'songs_index']);
     Route::get('song/{id}', [AdminController::class, 'songs_index_id']);
     Route::put('song/edit/{id}', [AdminController::class, 'edit_song']);
     Route::delete('song/delete/{id}', [AdminController::class, 'delete_song']);
