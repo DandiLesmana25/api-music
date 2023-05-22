@@ -264,4 +264,15 @@ class UserController extends Controller
             'songs' => $songs,
         ], 200);
     }
+
+    public function search(Request $request)
+    {
+        $keyword = $request->input('keyword');
+
+        $songs = Song::where('judul', 'LIKE', '%' . $keyword . '%')
+            ->orWhere('id', 'LIKE', '%' . $keyword . '%')
+            ->get();
+
+        return response()->json($songs);
+    }
 }

@@ -118,4 +118,7 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     //Album Management
     Route::get('albums', [UserController::class, 'albums_index']);
     Route::get('albums/{id}', [UserController::class, 'albums_index_id']);
+
+    //Search
+    Route::get('search', [UserController::class, 'search']);
 });
