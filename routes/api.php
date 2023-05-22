@@ -109,8 +109,13 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::post('profile/creator', [UserController::class, 'request_creator']);
 
 
-    //Music management
+    //Music Management
     Route::get('song/{id}', [UserController::class, 'songs_index_id']);
     Route::get('lastplay', [UserController::class, 'last_play']);
     Route::get('trending', [UserController::class, 'trending']);
+    Route::get('mood', [UserController::class, 'mood']);
+
+    //Album Management
+    Route::get('albums', [UserController::class, 'albums_index']);
+    Route::get('albums/{id}', [UserController::class, 'albums_index_id']);
 });

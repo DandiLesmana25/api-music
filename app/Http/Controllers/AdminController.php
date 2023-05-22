@@ -549,7 +549,7 @@ class AdminController extends Controller
         $album = new Album();
         $album->judul = $request->input('judul');
         $album->artis = $decode->name;
-        $album->cover = $coverPath;
+        $album->cover = url($coverPath);
         $album->tanggal_rilis = $request->input('tanggal_rilis');
         $album->status = $request->input('status', 'private');
         $album->id_user = $decode->id_login;
@@ -580,9 +580,10 @@ class AdminController extends Controller
     public function albums_index_id($id)
     {
 
-        $song = Album::find($id);
+        $album = Album::find($id);
+        $songs = Song::find($id);
 
-        if (!$song) {
+        if (!$album) {
             return response()->json(
                 [
                     'message' => 'Album Tidak di Temukan',
@@ -595,7 +596,8 @@ class AdminController extends Controller
         return response()->json([
             'message' => 'Album dengan id : ' . $id,
             'statusCode' => 200,
-            'data' => $song,
+            'data' => $album,
+            'songs' => $songs,
         ], 200);
     }
 

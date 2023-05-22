@@ -13,6 +13,7 @@ use Firebase\JWT\Key;
 use App\Models\User;
 use App\Models\Song;
 use App\Models\ViewSong;
+use App\Models\Album;
 use App\Models\User_Deleted;
 
 class UserController extends Controller
@@ -224,4 +225,43 @@ class UserController extends Controller
     }
 
     //*********************************** M U S I C   M A N A G E M E N T *******************************//
+
+
+    public function albums_index()
+    {
+        //
+
+        $albums = Album::all();
+
+        return response()->json([
+            'message' => 'Berhasil menampilkan daftar album',
+            'statusCode' => 200,
+            'data' => $albums,
+        ], 200);
+    }
+
+
+    public function albums_index_id($id)
+    {
+
+        $album = Album::find($id);
+        $songs = Song::find($id);
+
+        if (!$album) {
+            return response()->json(
+                [
+                    'message' => 'Album Tidak di Temukan',
+                    'statusCode' => 404,
+                ],
+                404
+            );
+        }
+
+        return response()->json([
+            'message' => 'Album dengan id : ' . $id,
+            'statusCode' => 200,
+            'data' => $album,
+            'songs' => $songs,
+        ], 200);
+    }
 }
