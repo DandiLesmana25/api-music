@@ -270,7 +270,9 @@ class UserController extends Controller
         $keyword = $request->input('keyword');
 
         $songs = Song::where('judul', 'LIKE', '%' . $keyword . '%')
-            ->orWhere('id', 'LIKE', '%' . $keyword . '%')
+            ->orWhere('name', 'LIKE', '%' . $keyword . '%')
+            ->join('users', 'songs.id_user', '=', 'users.id')
+            ->select('songs.*', 'users.name')
             ->get();
 
         return response()->json($songs);
