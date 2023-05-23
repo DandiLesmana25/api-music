@@ -22,11 +22,11 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'role' => 'user',
-            'password' => 'user',
-            'last_login' => now()
+            'users_name' => $this->faker->name(),
+            'users_email' => $this->faker->unique()->safeEmail(),
+            'users_role' => 'user',
+            'users_password' => 'user',
+            'users_last_login' => now()
         ];
     }
 

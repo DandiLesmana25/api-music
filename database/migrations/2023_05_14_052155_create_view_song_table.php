@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('view_song', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_user');
-            $table->unsignedBigInteger('id_lagu');
-            $table->foreign('id_user')->references('id')->on('users');
-            $table->foreign('id_lagu')->references('id')->on('songs');
+            $table->unsignedBigInteger('users_id');
+            $table->unsignedBigInteger('songs_id');
+            $table->foreign('users_id')->references('id')->on('users');
+            $table->foreign('songs_id')->references('id')->on('songs');
             $table->timestamps();
         });
     }

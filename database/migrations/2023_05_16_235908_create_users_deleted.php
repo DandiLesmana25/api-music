@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('users_deleted', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('deleted_at')->nullable();
-            $table->unsignedBigInteger('deleted_by')->nullable();
-            $table->foreign('deleted_by')->references('id')->on('users')->onDelete('SET NULL');
+            $table->string('users_deleted_name');
+            $table->string('users_deleted_email')->unique();
+            $table->timestamp('users_deleted_deleted_at')->nullable();
+            $table->unsignedBigInteger('users_deleted_deleted_by')->nullable();
+            $table->foreign('users_deleted_deleted_by')->references('id')->on('users')->onDelete('SET NULL');
             $table->timestamps();
         });
     }

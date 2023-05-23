@@ -16,13 +16,13 @@ return new class extends Migration
 
         Schema::create('albums', function (Blueprint $table) {
             $table->id();
-            $table->string('judul');
-            $table->string('artis');
-            $table->date('tanggal_rilis')->nullable();
-            $table->string('genre')->nullable();
-            $table->string('cover')->nullable();
-            $table->unsignedBigInteger('id_user'); // Tambahkan kolom id_user
-            $table->string('status')->default('private'); // Tambahkan kolom status dengan nilai default 'pending'
+            $table->string('albums_title');
+            $table->string('albums_artist');
+            $table->date('albums_release_date')->nullable();
+            $table->string('albums_genre')->nullable();
+            $table->string('albums_cover')->nullable();
+            $table->unsignedBigInteger('users_id'); // Tambahkan kolom id_user
+            $table->string('albums_status')->default('private'); // Tambahkan kolom status dengan nilai default 'pending'
             $table->timestamps();
         });
     }

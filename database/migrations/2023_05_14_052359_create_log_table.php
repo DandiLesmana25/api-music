@@ -12,11 +12,11 @@ class CreateLogTable extends Migration
      */
     public function up()
     {
-        Schema::create('log', function (Blueprint $table) {
-            $table->id('idlog');
-            $table->string('module');
-            $table->string('action');
-            $table->string('useraccess');
+        Schema::create('logs', function (Blueprint $table) {
+            $table->id();
+            $table->string('logs_module');
+            $table->string('logs_action');
+            $table->string('users_id');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ class CreateLogTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('log');
+        Schema::dropIfExists('logs');
     }
 };
