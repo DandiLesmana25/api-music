@@ -15,6 +15,7 @@ use App\Models\Song;
 use App\Models\ViewSong;
 use App\Models\Album;
 use App\Models\User_Deleted;
+use App\Models\Playlist;
 
 class UserController extends Controller
 {
@@ -276,5 +277,153 @@ class UserController extends Controller
             ->get();
 
         return response()->json($songs);
+    }
+
+
+    public function create_playlist(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'nama' => 'required|string',
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|in:private,public',
+        ]);
+
+        $jwt = $request->bearerToken();
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Data tidak valid',
+                'status' => 400,
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $cover = $request->file('gambar');
+        $coverExtension = $cover->getClientOriginalExtension();
+        $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
+        $coverPath = 'playlist/' . $coverName;
+        $cover->move(public_path('playlist'), $coverPath);
+
+
+        $playlist = Playlist::create([
+            'nama' => $request->input('nama'),
+            'gambar' => asset($coverPath),
+            'status' => $request->input('status'),
+            'id_user' => $decode->id_login,
+        ]);
+
+        return response()->json([
+            'message' => 'Playlist created',
+            'data' => $playlist,
+        ]);
+    }
+
+
+    public function show_all_playlist()
+    {
+        // Mengambil semua daftar putar dari model Playlist
+        $playlists = Playlist::all();
+
+        // Memeriksa apakah ada daftar putar yang ditemukan
+        if ($playlists->isNotEmpty()) {
+            // Mengubah data daftar putar menjadi array
+            $playlistData = $playlists->toArray();
+
+            return response()->json([
+                'message' => 'Daftar putar berhasil ditemukan',
+                'data' => $playlistData
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tidak ada daftar putar yang ditemukan',
+                'data' => []
+            ]);
+        }
+    }
+
+    public function show_playlist($id)
+    {
+        $playlist = Playlist::find($id);
+        $songs = Song::where('id', $id)->get();
+
+        if (!$playlist) {
+            return response()->json(
+                [
+                    'message' => 'Playlist tidak ditemukan',
+                    'statusCode' => 404,
+                ],
+                404
+            );
+        }
+
+        return response()->json([
+            'message' => 'Playlist dengan id: ' . $id,
+            'statusCode' => 200,
+            'data' => $playlist,
+            'songs' => $songs,
+        ], 200);
+    }
+
+    public function edit_playlist(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama' => 'required|string',
+            'gambar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|in:private,public',
+        ]);
+
+        $jwt = $request->bearerToken();
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Data tidak valid',
+                'status' => 400,
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $playlist = Playlist::findOrFail($id);
+
+        // Mengupdate nama playlist
+        $playlist->nama = $request->input('nama');
+
+        // Mengupdate status playlist
+        $playlist->status = $request->input('status');
+
+        // Mengupdate gambar playlist jika ada
+        if ($request->hasFile('gambar')) {
+            $cover = $request->file('gambar');
+            $coverExtension = $cover->getClientOriginalExtension();
+            $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
+            $coverPath = 'playlist/' . $coverName;
+            $cover->move(public_path('playlist'), $coverPath);
+
+            $playlist->gambar = asset($coverPath);
+        }
+
+        // Menyimpan perubahan pada playlist
+        $playlist->save();
+
+        return response()->json([
+            'message' => 'Playlist updated',
+            'data' => $playlist,
+        ]);
+    }
+
+    public function delete_playlist($id)
+    {
+
+        Playlist::where('id', $id)->delete();
+
+        return response()->json([
+            "data" => [
+                "message" => "Playlist berhasil di hapus",
+                "id" => $id
+            ]
+        ], 200);
     }
 }
