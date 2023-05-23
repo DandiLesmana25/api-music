@@ -18,31 +18,30 @@ class User extends Authenticatable
     protected $table = 'users';
 
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'last_login'
+        'users_name',
+        'users_email',
+        'users_password',
+        'users_last_login'
     ];
 
     public function songs()
     {
-        return $this->hasMany(Song::class, 'id_user');
+        return $this->hasMany(Song::class, 'users_id');
     }
 
     public function viewedSongs()
     {
-        return $this->hasMany(ViewSong::class, 'id_user');
+        return $this->hasMany(ViewSong::class, 'users_id');
     }
 
     protected $hidden = [
-        'password',
-        'remember_token',
+        'users_password'
     ];
 
 
     public function setPasswordAttribute($password)
     {
-        $this->attributes['password'] = bcrypt($password);
+        $this->attributes['users_password'] = bcrypt($password);
     }
 
     public function request_creator($value)
