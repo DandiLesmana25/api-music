@@ -95,6 +95,8 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::put('playlist/{id}', [UserController::class, 'edit_playlist']);
     Route::delete('playlist/{id}', [UserController::class, 'delete_playlist']);
 
+    Route::post('playlist/add/song', [UserController::class, 'add_to_playlist']);
+
     // update password
     Route::put('update/{id}', [UserController::class, 'update_password']);
 
@@ -115,7 +117,7 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
 
     //Album Management
     Route::get('albums', [UserController::class, 'albums_index']);
-    Route::get('albums/{id}', [UserController::class, 'albums_index_id']);
+    Route::get('album/{id}', [UserController::class, 'albums_index_id']);
 
     //Search
     Route::get('search', [UserController::class, 'search']);

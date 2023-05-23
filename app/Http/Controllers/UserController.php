@@ -16,12 +16,12 @@ use App\Models\ViewSong;
 use App\Models\Album;
 use App\Models\User_Deleted;
 use App\Models\Playlist;
+use App\Models\DetailPlaylist;
 
 class UserController extends Controller
 {
 
     //*********************************** U S E R   M A N A  G E M E N T ********************************//
-
 
     //Menampilkan akun berdasarkan Id
     public function show_register_by_id(Request $request)
@@ -425,5 +425,31 @@ class UserController extends Controller
                 "id" => $id
             ]
         ], 200);
+    }
+
+    public function add_to_playlist(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'playlist_id' => 'required|exists:playlists,id',
+            'song_id' => 'required|exists:songs,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Data tidak valid',
+                'status' => 400,
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $detailPlaylist = DetailPlaylist::create([
+            'playlists_id' => $request->input('playlist_id'),
+            'song_id' => $request->input('song_id'),
+        ]);
+
+        return response()->json([
+            'message' => 'Data added to playlist',
+            'data' => $detailPlaylist,
+        ]);
     }
 }
