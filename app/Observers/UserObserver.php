@@ -21,7 +21,7 @@ class UserObserver
         Log::create([
             'logs_module' => 'register',
             'logs_action' => 'register account',
-            'users_id' => $user->id, // Menggunakan $user->id sebagai nilai 'users_id'
+            'users_id' => $user->id,
             'updated_at' => now(),
             'created_at' => now(),
         ]);
@@ -35,9 +35,9 @@ class UserObserver
     {
         //simpan ke dalam tabel log, ini dilakukan setelah user berhasil di sunting
         Log::create([
-            'logs_module' => 'sunting',
-            'logs_action' => 'sunting akun',
-            'users_id' => $user->email
+            'logs_module' => 'update',
+            'logs_action' => 'update users table',
+            'users_id' => $user->id
         ]);
     }
 
@@ -49,7 +49,7 @@ class UserObserver
         Log::create([
             'logs_module' => 'delete',
             'logs_action' => 'delete akun',
-            'users_id' => $user->email
+            'users_id' => $user->id
         ]);
     }
 

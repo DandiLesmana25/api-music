@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator; //panggil library validator untuk vali
 use Illuminate\Support\Facades\Auth; //panggil library untuk otrntikasi
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -18,7 +19,6 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users,users_email',
@@ -26,98 +26,108 @@ class AuthController extends Controller
             'confirmation_password' => 'required|same:password'
         ]);
 
-        // kondisi ketika satu atau lebih inputan tidak sesuai aturan di atas
-        // ($validator->validated());
         if ($validator->fails()) {
-            return messageError($validator->messages()->toArray());
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'messages' => $validator->messages()
+            ], 400);
         }
 
-        $user = $validator->validated();
-        $user['users_last_login'] = Carbon::now();
-        $user['created_at'] = Carbon::now();
-        $user['updated_at'] = Carbon::now();
+        $userData = $validator->validated();
 
+        $user = User::create([
+            'users_name' => $userData['name'],
+            'users_email' => $userData['email'],
+            'users_password' => bcrypt($userData['password']),
+            'users_last_login' => Carbon::now(),
+        ]);
 
-        //masukkan user ke database user 
-        User::create($user);
-
-        // isi token JWT
-        $playload = [
-            'name' => $user['name'],
+        $payload = [
+            'name' => $userData['name'],
             'role' => 'user',
             'iat' => now()->timestamp,
         ];
 
-        // generate token dengan algoritma HS256
-        $token = JWT::encode($playload, env('JWT_SECRET_KEY'), 'HS256');
+        $token = JWT::encode($payload, env('JWT_SECRET_KEY'), 'HS256');
 
-        // BUAT LOGIN 
-        Log::create([
-            'logs_module' => 'login',
-            'logs_action' => 'login akun',
-            'logs_id' => $user['email']
-        ]);
+        // Log::create([
+        //     'logs_module' => 'register',
+        //     'logs_action' => 'register account',
+        //     'users_id' => $user->id
+        // ]);
 
-        // kirim respons ke pengguna 
-        return response()->json([
-            "data" => [
-                'message' => "Berhasil Register",
-                'name' => $user['name'],
-                'email' => $user['email'],
-                'role' => 'user',
+        return response()->json(
+            [
+                "status" => "success",
+                "code" => 200,
+                "message" => "Berhasil Registrasi",
+                "data" => [
+                    'name' => $userData['name'],
+                    'email' => $userData['email'],
+                    'role' => 'user',
+                ],
+                "token" => "Bearer {$token}"
             ],
-            "token" => "Beare {$token}"
-        ], 200);
+            200
+        );
     }
 
 
     public function login(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
         if ($validator->fails()) {
-            return messageError($validator->messages()->toArray());
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'messages' => $validator->messages()
+            ], 400);
         }
 
-        if (Auth::attempt($validator->validated())) {
+        $user = User::where('users_email', $request->email)->first();
 
+        if ($user && Hash::check($request->password, $user->users_password)) {
             $playload = [
-                'name' => Auth::user()->name,
-                'role' => Auth::user()->role,
+                'name' => $user->users_name,
+                'role' => $user->users_role,
                 'iat' => now()->timestamp,
-                'id_login' => Auth::user()->id,
+                'id_login' => $user->id,
             ];
 
             $token = JWT::encode($playload, env('JWT_SECRET_KEY'), 'HS256');
 
             Log::create([
-                'module' => 'login',
-                'action' => 'login akun',
-                'useraccess' => Auth::user()->email
+                'logs_module' => 'login',
+                'logs_action' => 'login',
+                'users_id' => $user->id
             ]);
 
-            $user = User::find(Auth::user()->id);
-            $user->last_login = Carbon::now();
+            $user->users_last_login = Carbon::now();
             $user->save();
 
             return response()->json([
+                "status" => "success",
+                "code" => 200,
+                "message" => "Berhasil Login",
                 "data" => [
-                    'message' => "Berhasil login",
-                    "user" => [
-                        'id' => Auth::user()->id,
-                        'name' => Auth::user()->name,
-                        'email' => Auth::user()->email,
-                        'role' => Auth::user()->role,
-                    ]
+                    'id' => $user->id,
+                    'name' => $user->users_name,
+                    'email' => $user->users_email,
+                    'role' => $user->users_role,
                 ],
                 "token" => "Bearer {$token}"
             ], 200);
         }
 
-        return response()->json("email atau password salah", 422);
+        return response()->json([
+            'status' => 'error',
+            'code' => 422,
+            'message' => 'Email atau password salah'
+        ], 422);
     }
 }
