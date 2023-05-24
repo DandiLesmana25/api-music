@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -24,13 +26,13 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        $userCount = User::where('role', 'user')->count();
-        $creatorCount = User::where('role', 'creator')->count();
+        $userCount = User::where('users_role', 'user')->count();
+        $creatorCount = User::where('users_role', 'creator')->count();
 
         $startDate = now()->subWeek()->startOfDay();
         $endDate = now()->endOfDay();
 
-        $songCount = Song::whereBetween('tanggal_rilis', [$startDate, $endDate])->count();
+        $songCount = Song::whereBetween('songs_release_date', [$startDate, $endDate])->count();
         $userUpdate = User::whereBetween('created_at', [$startDate, $endDate])->count();
 
         $result = [
@@ -44,7 +46,7 @@ class AdminController extends Controller
             ]
         ];
 
-        return response()->json($result);
+        return response()->json(["data" => $result]);
     }
 
     //**************************************** D A S H B O A R D *****************************************//
@@ -59,34 +61,65 @@ class AdminController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:users,users_email',
             'password' => 'required|min:8',
             'confirmation_password' => 'required|same:password',
-            'role' => 'required|in:admin,user,creator',
+            'role' => 'required|in:user,creator,admin',
         ]);
 
         if ($validator->fails()) {
-            return messageError($validator->messages()->toArray());
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'messages' => $validator->messages()
+            ], 400);
         }
-        $user = $validator->validated();
 
-        User::create($user);
+        $userData = $validator->validated();
 
-        return response()->json([
-            "data" => [
-                'message' => "Akun berhasil di buat",
-                'name' => $user['name'],
-                'email' => $user['email'],
-                'role' => $user['role']
-            ]
-        ], 200);
+        $user = User::create([
+            'users_name' => $userData['name'],
+            'users_email' => $userData['email'],
+            'users_role' => $userData['role'],
+            'users_password' => bcrypt($userData['password']),
+            'users_last_login' => Carbon::now(),
+        ]);
+
+        $payload = [
+            'name' => $userData['name'],
+            'role' => 'user',
+            'iat' => now()->timestamp,
+        ];
+
+        $token = JWT::encode($payload, env('JWT_SECRET_KEY'), 'HS256');
+
+        // Log::create([
+        //     'logs_module' => 'register',
+        //     'logs_action' => 'register account',
+        //     'users_id' => $user->id
+        // ]);
+
+        return response()->json(
+            [
+                "status" => "success",
+                "code" => 200,
+                "message" => "Berhasil Registrasi",
+                "data" => [
+                    'name' => $userData['name'],
+                    'email' => $userData['email'],
+                    'role' => $userData['role'],
+                ],
+                "token" => "Bearer {$token}"
+            ],
+            200
+        );
     }
 
     //Menampilkan akun terregisrasi
     public function show_register()
     {
         // Mencari semua akun dengan role user atau creator
-        $users = User::whereIn('role', ['user', 'creator'])->get();
+        $users = User::whereIn('users_role', ['user', 'creator'])->get();
 
         return response()->json([
             "data" => [
@@ -104,10 +137,10 @@ class AdminController extends Controller
         $user = User::find($id);
 
         return response()->json([
-            "data" => [
-                'message' => "user id:{$id}",
-                'data' => $user
-            ]
+            "status" => "success",
+            "code" => 200,
+            "message" => "Data user {$id}",
+            "data" => $user
         ], 200);
     }
 
@@ -119,40 +152,51 @@ class AdminController extends Controller
         if ($user) {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'password' => 'min:8',
+                'password' => 'nullable|min:8',
                 'confirmation_password' => 'same:password',
-                'email' => 'email',
+                'email' => 'required|email|unique:users,users_email,' . $id,
                 'role' => 'required|in:admin,user,creator',
             ]);
 
             if ($validator->fails()) {
-                return messageError($validator->messages()->toArray());
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 400,
+                    'messages' => $validator->messages()
+                ], 400);
             }
 
-            $data = $request->only(['name', 'email', 'role']);
+            $userData = $validator->validated();
 
-            if ($request->has('password')) {
-                $data['password'] = bcrypt($request->password);
-            }
-
-            User::where('id', $id)->update($data);
+            User::where('id', $id)->update([
+                'users_name' => $userData['name'],
+                'users_email' => $userData['email'],
+                'users_role' => $userData['role'],
+                'users_password' => bcrypt($userData['password']),
+                'users_last_login' => Carbon::now(),
+            ]);
 
             return response()->json([
+                'status' => 'success',
+                'code' => 200,
                 'data' => [
-                    "message" => 'User dengan id ' . $id . ' berhasil diupdate',
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                    'role' => $data['role'],
+                    'message' => 'User dengan id ' . $id . ' berhasil diperbarui',
+                    'name' => $userData['name'],
+                    'email' => $userData['email'],
+                    'role' => $userData['role'],
                 ]
             ], 200);
         }
 
         return response()->json([
-            "data" => [
+            'status' => 'error',
+            'code' => 422,
+            'data' => [
                 'message' => 'User dengan id ' . $id . ' tidak ditemukan'
             ]
         ], 422);
     }
+
 
     //Hapus akun via admin
     public function delete_register($id, Request $request)
@@ -164,20 +208,26 @@ class AdminController extends Controller
 
         if (!$user) {
             return response()->json([
-                'error' => 'User tidak di temukan'
+                "status" => "error",
+                "code" => 404,
+                "message" => "User tidak ditemukan",
             ], 404);
         }
 
         User_Deleted::create([
-            'name' => $user->name,
-            'email' => $user->email,
-            'deleted_by' => $decode->id_login
+            'users_deleted_name' => $user->users_name,
+            'users_deleted_email' => $user->users_email,
+            'users_deleted_deleted_by' => $decode->id_login
         ]);
+
 
         $user->delete();
 
         return response()->json([
-            'message' => 'User berhasil di hapus'
+            "status" => "success",
+            "code" => 200,
+            "message" => 'User berhasil di hapus',
+            "data" => $user
         ], 200);
     }
 

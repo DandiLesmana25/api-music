@@ -14,18 +14,9 @@ use App\Http\Controllers\DetailPlaylistController;
 
 use App\Http\Controllers\MusicController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
 
-// guest routes
+
+// GUEST ROUTE
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
@@ -38,12 +29,15 @@ routes untuk admin, dimana terdapat middleware admin dan juga prefix awalan url 
 
 Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
+    // DASHBOARD
+    Route::get('dashboard', [AdminController::class, 'dashboard']);  //CHECK
+
     // User Management
-    Route::post('register', [AdminController::class, 'register']);
-    Route::get('register', [AdminController::class, 'show_register']);
-    Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);
-    Route::put('register/{id}', [AdminController::class, 'update_register']);
-    Route::delete('register/{id}', [AdminController::class, 'delete_register']);
+    Route::post('register', [AdminController::class, 'register']);                                  //CHECK
+    Route::get('register', [AdminController::class, 'show_register']);                              //CHECK
+    Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);                   //CHECK
+    Route::put('register/{id}', [AdminController::class, 'update_register']);                       //CHECK
+    Route::delete('register/{id}', [AdminController::class, 'delete_register']);                    //CHECK
     Route::post('register/reset/{id}', [AdminController::class, 'reset_password']);
 
     Route::get('creator', [AdminController::class, 'request_creator']);
@@ -59,8 +53,7 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::delete('song/delete/{id}', [AdminController::class, 'delete_song']);
 
 
-    // DASHBOARD
-    Route::get('dashboard', [AdminController::class, 'dashboard']);
+
 
     // ALBUM
     Route::post('album/add', [AdminController::class, 'add_album']);

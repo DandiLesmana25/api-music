@@ -21,7 +21,8 @@ class User extends Authenticatable
         'users_name',
         'users_email',
         'users_password',
-        'users_last_login'
+        'users_last_login',
+        'users_role',
     ];
 
     public function songs()
