@@ -10,20 +10,23 @@ class UserObserver
 
     public function creating(User $user)
     {
-        $user->last_login = now();
+        $user->users_last_login = now();
     }
+
     /**
      * Handle the User "created" event.
      */
     public function created(User $user): void
     {
         Log::create([
-            'module' => 'register',
-            'action' => 'registrasi akun',
-            'useraccess' => $user->email
-
+            'logs_module' => 'register',
+            'logs_action' => 'register account',
+            'users_id' => $user->id, // Menggunakan $user->id sebagai nilai 'users_id'
+            'updated_at' => now(),
+            'created_at' => now(),
         ]);
     }
+
 
     /**
      * Handle the User "updated" event.
@@ -32,9 +35,9 @@ class UserObserver
     {
         //simpan ke dalam tabel log, ini dilakukan setelah user berhasil di sunting
         Log::create([
-            'module' => 'sunting',
-            'action' => 'sunting akun',
-            'useraccess' => $user->email
+            'logs_module' => 'sunting',
+            'logs_action' => 'sunting akun',
+            'users_id' => $user->email
         ]);
     }
 
@@ -44,9 +47,9 @@ class UserObserver
     public function deleting(User $user): void
     {
         Log::create([
-            'module' => 'delete',
-            'action' => 'delete akun',
-            'useraccess' => $user->email
+            'logs_module' => 'delete',
+            'logs_action' => 'delete akun',
+            'users_id' => $user->email
         ]);
     }
 

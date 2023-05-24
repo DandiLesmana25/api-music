@@ -39,10 +39,11 @@ class User extends Authenticatable
     ];
 
 
-    public function setPasswordAttribute($password)
+    public function setPasswordAttribute($users_password)
     {
-        $this->attributes['users_password'] = bcrypt($password);
+        $this->attributes['users_password'] = bcrypt($users_password);
     }
+
 
     public function request_creator($value)
     {
@@ -50,9 +51,9 @@ class User extends Authenticatable
         $this->save();
     }
 
-    public function last_login()
-    {
-        $this->req_upgrade = now()->timestamp;
-        $this->save();
-    }
+    // public function last_login()
+    // {
+    //     $this->req_upgrade = now()->timestamp;
+    //     $this->save();
+    // }
 }

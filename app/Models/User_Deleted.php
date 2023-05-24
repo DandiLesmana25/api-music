@@ -13,6 +13,6 @@ class User_Deleted extends Model
     protected $table = 'users_deleted';
 
     protected $fillable = [
-        'id', 'name', 'email', 'deleted_at', 'deleted_by', 'created_at', 'updated_at'
-    ];
+        'id', 'users_deleted_name', 'users_deleted_email', 'users_deleted_deleted_at', 'users_deleted_deleted_by',
+    ];  // 'created_at', 'updated_at'
 }

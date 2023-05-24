@@ -9,11 +9,11 @@ class Playlist extends Model
 {
     // use HasFactory;
 
-    protected $fillable = ['nama', 'gambar', 'status', 'id_user'];
+    protected $fillable = ['playlists_name', 'playlists_cover', 'playlists_status', 'users_id'];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'users_id');
     }
 
     public function detailPlaylists()

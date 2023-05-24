@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
             'users_name' => 'Administrator',
             'users_email' => 'admin@admin.com',
             'users_role' => 'admin',
-            'users_password' => 'admin',
+            'password' => 'admin',
             'users_last_login' => now(),
         ]);
 

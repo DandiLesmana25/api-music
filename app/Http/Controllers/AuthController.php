@@ -21,7 +21,7 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:users,users_email',
             'password' => 'required|min:8',
             'confirmation_password' => 'required|same:password'
         ]);
@@ -33,6 +33,7 @@ class AuthController extends Controller
         }
 
         $user = $validator->validated();
+        $user['users_last_login'] = Carbon::now();
         $user['created_at'] = Carbon::now();
         $user['updated_at'] = Carbon::now();
 
@@ -52,9 +53,9 @@ class AuthController extends Controller
 
         // BUAT LOGIN 
         Log::create([
-            'module' => 'login',
-            'action' => 'login akun',
-            'useraccess' => $user['email']
+            'logs_module' => 'login',
+            'logs_action' => 'login akun',
+            'logs_id' => $user['email']
         ]);
 
         // kirim respons ke pengguna 
