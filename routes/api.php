@@ -38,10 +38,18 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);                   //CHECK
     Route::put('register/{id}', [AdminController::class, 'update_register']);                       //CHECK
     Route::delete('register/{id}', [AdminController::class, 'delete_register']);                    //CHECK
-    Route::post('register/reset/{id}', [AdminController::class, 'reset_password']);
+    Route::post('register/reset/{id}', [AdminController::class, 'reset_password']);                 //CHECK
 
     Route::get('creator', [AdminController::class, 'request_creator']);
     Route::post('creator/{id}', [AdminController::class, 'approve_creator']);
+
+
+    // ALBUM
+    Route::post('album/add', [AdminController::class, 'add_album']);
+    Route::get('albums', [AdminController::class, 'albums_index']);
+    Route::get('albums/{id}', [AdminController::class, 'albums_index_id']);
+    Route::put('albums/edit/{id}', [AdminController::class, 'edit_album']);
+    Route::delete('albums/delete/{id}', [AdminController::class, 'delete_album']);
 
 
 
@@ -61,11 +69,6 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::get('albums/{id}', [AdminController::class, 'albums_index_id']);
     Route::put('albums/edit/{id}', [AdminController::class, 'edit_album']);
     Route::delete('albums/delete/{id}', [AdminController::class, 'delete_album']);
-
-    // label done
-    Route::post('/labels', [LabelController::class, 'store'])->name('labels.store');
-    Route::get('/labels/show-all/', [LabelController::class, 'index']);
-    Route::get('/labels/show/{id}', [LabelController::class, 'show']);
 
 
     //add  playlist
