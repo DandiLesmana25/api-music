@@ -108,24 +108,32 @@ class UserController extends Controller
 
         if (!$user) {
             return response()->json([
-                "data" => [
-                    'message' => 'id : ' . $decode->id_login . ' tidak ditemukan'
-                ]
+                "status" => "error",
+                "code" => 422,
+                "message" => 'id : ' . $decode->id_login . ' tidak ditemukan'
             ], 422);
         }
 
-        // Ubah nilai kolom req_upgrade
-        $user->req_upgrade = 'request';
+        // Ubah nilai kolom users_req_upgrade
+        $user->users_req_upgrade = 'request';
         $user->save();
 
-        return response()->json([
-            'data' => [
-                "message" => 'Berhasil request creator',
-                'name' => $user->name,
-                'email' => $user->email,
-            ]
-        ], 200);
+        return response()->json(
+            [
+                'data' => [
+                    "status" => "success",
+                    "code" => 200,
+                    "message" => 'Berhasil request creator',
+                    "data" => [
+                        'name' => $user->users_name,
+                        'email' => $user->users_email,
+                    ]
+                ]
+            ],
+            200
+        );
     }
+
 
 
     //*********************************** U S E R   M A N A  G E M E N T ********************************//
