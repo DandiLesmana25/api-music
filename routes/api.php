@@ -29,28 +29,19 @@ routes untuk admin, dimana terdapat middleware admin dan juga prefix awalan url 
 
 Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
-    // DASHBOARD
-    Route::get('dashboard', [AdminController::class, 'dashboard']);  //CHECK
+    // DASHBOARD -> OKE
+    Route::get('dashboard', [AdminController::class, 'dashboard']);
 
-    // User Management
-    Route::post('register', [AdminController::class, 'register']);                                  //CHECK
-    Route::get('register', [AdminController::class, 'show_register']);                              //CHECK
-    Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);                   //CHECK
-    Route::put('register/{id}', [AdminController::class, 'update_register']);                       //CHECK
-    Route::delete('register/{id}', [AdminController::class, 'delete_register']);                    //CHECK
-    Route::post('register/reset/{id}', [AdminController::class, 'reset_password']);                 //CHECK
+    // User Management -> OKE
+    Route::post('register', [AdminController::class, 'register']);
+    Route::get('register', [AdminController::class, 'show_register']);
+    Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);
+    Route::put('register/{id}', [AdminController::class, 'update_register']);
+    Route::delete('register/{id}', [AdminController::class, 'delete_register']);
+    Route::post('register/reset/{id}', [AdminController::class, 'reset_password']);
 
     Route::get('creator', [AdminController::class, 'request_creator']);
     Route::post('creator/{id}', [AdminController::class, 'approve_creator']);
-
-
-    // ALBUM
-    Route::post('album/add', [AdminController::class, 'add_album']);
-    Route::get('albums', [AdminController::class, 'albums_index']);
-    Route::get('albums/{id}', [AdminController::class, 'albums_index_id']);
-    Route::put('albums/edit/{id}', [AdminController::class, 'edit_album']);
-    Route::delete('albums/delete/{id}', [AdminController::class, 'delete_album']);
-
 
 
     // Music Management
@@ -60,20 +51,12 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::put('song/edit/{id}', [AdminController::class, 'edit_song']);
     Route::delete('song/delete/{id}', [AdminController::class, 'delete_song']);
 
-
-
-
-    // ALBUM
+    // ALBUM -> OKE
     Route::post('album/add', [AdminController::class, 'add_album']);
     Route::get('albums', [AdminController::class, 'albums_index']);
     Route::get('albums/{id}', [AdminController::class, 'albums_index_id']);
     Route::put('albums/edit/{id}', [AdminController::class, 'edit_album']);
     Route::delete('albums/delete/{id}', [AdminController::class, 'delete_album']);
-
-
-    //add  playlist
-
-    Route::post('playlists', [PlaylistController::class, 'store']);
 });
 
 
@@ -84,6 +67,13 @@ user routes
 routes untuk user, dimana terdapat middleware admin dan juga prefix awalan url "user"
 */
 Route::middleware(['user.api'])->prefix('user')->group(function () {
+
+
+    //Music Management
+    Route::get('song/{id}', [UserController::class, 'songs_index_id']);
+    Route::get('lastplay', [UserController::class, 'last_play']);
+    Route::get('trending', [UserController::class, 'trending']);
+    Route::get('mood', [UserController::class, 'mood']);
 
     Route::post('playlists', [UserController::class, 'create_playlist']);
     Route::get('playlists', [UserController::class, 'show_all_playlist']);
@@ -105,12 +95,6 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::post('profile/creator', [UserController::class, 'request_creator']);
 
 
-    //Music Management
-    Route::get('song/{id}', [UserController::class, 'songs_index_id']);
-    Route::get('lastplay', [UserController::class, 'last_play']);
-    Route::get('trending', [UserController::class, 'trending']);
-    Route::get('mood', [UserController::class, 'mood']);
-
     //Album Management
     Route::get('albums', [UserController::class, 'albums_index']);
     Route::get('album/{id}', [UserController::class, 'albums_index_id']);
@@ -118,6 +102,9 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     //Search
     Route::get('search', [UserController::class, 'search']);
 });
+
+
+
 
 
 Route::middleware(['creator.api'])->prefix('creator')->group(function () {

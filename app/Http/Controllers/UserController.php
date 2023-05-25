@@ -145,8 +145,9 @@ class UserController extends Controller
         if (!$song) {
             return response()->json(
                 [
+                    "status" => "error",
+                    "code" => 404,
                     'message' => 'Lagu Tidak di Temukan',
-                    'statusCode' => 404,
                 ],
                 404
             );
@@ -154,13 +155,14 @@ class UserController extends Controller
 
         // BUAT LOGIN 
         ViewSong::create([
-            'id_lagu' => $id,
-            'id_user' => $decode->id_login,
+            'songs_id' => $id,
+            'users_id' => $decode->id_login,
         ]);
 
         return response()->json([
+            "status" => "success",
+            "code" => 200,
             'message' => 'Lagu dengan id : ' . $id,
-            'statusCode' => 200,
             'data' => $song,
         ], 200);
     }
@@ -171,10 +173,10 @@ class UserController extends Controller
         $jwt = $request->bearerToken(); //ambil token
         $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decode token
 
-        $latestSongs = ViewSong::where('id_user', $decode->id_login)
+        $latestSongs = ViewSong::where('users_id', $decode->id_login)
             ->orderBy('created_at', 'desc')
             ->take(5)
-            ->pluck('id_lagu');
+            ->pluck('songs_id');
 
         $songs = Song::whereIn('id', $latestSongs)->get();
 
@@ -201,26 +203,28 @@ class UserController extends Controller
         $mondayLastWeek = Carbon::now()->subWeek()->startOfWeek()->addDay(); // Ambil hari Senin satu minggu yang lalu
 
         $popularSongs = ViewSong::where('created_at', '>', $mondayLastWeek)
-            ->groupBy('id_lagu')
+            ->groupBy('songs_id')
             ->orderByRaw('COUNT(*) DESC')
             ->take(5)
-            ->pluck('id_lagu');
+            ->pluck('songs_id');
 
         $songs = Song::whereIn('id', $popularSongs)->get();
 
         if ($songs->isEmpty()) {
             return response()->json(
                 [
-                    'message' => 'Tidak ada lagu yang paling banyak diputar dalam satu minggu terakhir',
-                    'statusCode' => 404,
+                    "status" => "error",
+                    "code" => 404,
+                    'message' => 'Lagu tidak di temukan',
                 ],
                 404
             );
         }
 
         return response()->json([
-            'message' => '5 lagu yang paling banyak diputar dalam satu minggu terakhir',
-            'statusCode' => 200,
+            "status" => "success",
+            "code" => 200,
+            'message' => '5 Lagu terpopuler minggu ini',
             'data' => $songs,
         ], 200);
     }
@@ -230,16 +234,27 @@ class UserController extends Controller
 
     public function albums_index()
     {
-        //
-
         $albums = Album::all();
 
-        return response()->json([
-            'message' => 'Berhasil menampilkan daftar album',
-            'statusCode' => 200,
-            'data' => $albums,
-        ], 200);
+        if ($albums->isEmpty()) {
+            return response()->json([
+                "status" => "error",
+                "code" => 404,
+                'message' => 'Tidak ada album yang ditemukan',
+            ], 404);
+        }
+
+        return response()->json(
+            [
+                "status" => "success",
+                "code" => 200,
+                'message' => 'Daftar album',
+                'data' => $albums,
+            ],
+            200
+        );
     }
+
 
 
     public function albums_index_id($id)
@@ -251,18 +266,22 @@ class UserController extends Controller
         if (!$album) {
             return response()->json(
                 [
+                    "status" => "success",
+                    "code" => 404,
                     'message' => 'Album Tidak di Temukan',
-                    'statusCode' => 404,
                 ],
                 404
             );
         }
 
         return response()->json([
-            'message' => 'Album dengan id : ' . $id,
-            'statusCode' => 200,
-            'data' => $album,
-            'songs' => $songs,
+            "status" => 'success',
+            "code" => 200,
+            "message" => 'Album dengan id : ' . $id,
+            "data" => [
+                "album" => $album,
+                "songs" => $songs,
+            ]
         ], 200);
     }
 
@@ -270,10 +289,10 @@ class UserController extends Controller
     {
         $keyword = $request->input('keyword');
 
-        $songs = Song::where('judul', 'LIKE', '%' . $keyword . '%')
-            ->orWhere('name', 'LIKE', '%' . $keyword . '%')
-            ->join('users', 'songs.id_user', '=', 'users.id')
-            ->select('songs.*', 'users.name')
+        $songs = Song::where('songs_title', 'LIKE', '%' . $keyword . '%')
+            ->orWhere('users_name', 'LIKE', '%' . $keyword . '%')
+            ->join('users', 'songs.users_id', '=', 'users.id')
+            ->select('songs.*', 'users.users_name')
             ->get();
 
         return response()->json($songs);
@@ -282,12 +301,14 @@ class UserController extends Controller
 
     public function create_playlist(Request $request)
     {
-
-        $validator = Validator::make($request->all(), [
-            'nama' => 'required|string',
-            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|in:private,public',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'nama' => 'required|string',
+                'cover' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'status' => 'required|in:private,public',
+            ]
+        );
 
         $jwt = $request->bearerToken();
         $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
@@ -300,18 +321,17 @@ class UserController extends Controller
             ], 400);
         }
 
-        $cover = $request->file('gambar');
+        $cover = $request->file('cover');
         $coverExtension = $cover->getClientOriginalExtension();
         $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
         $coverPath = 'playlist/' . $coverName;
         $cover->move(public_path('playlist'), $coverPath);
 
-
         $playlist = Playlist::create([
-            'nama' => $request->input('nama'),
-            'gambar' => asset($coverPath),
-            'status' => $request->input('status'),
-            'id_user' => $decode->id_login,
+            'playlists_name' => $request->input('nama'),
+            'playlists_cover' => asset($coverPath),
+            'playlists_status' => $request->input('status'),
+            'users_id' => $decode->id_login,
         ]);
 
         return response()->json([
@@ -321,14 +341,18 @@ class UserController extends Controller
     }
 
 
-    public function show_all_playlist()
-    {
-        // Mengambil semua daftar putar dari model Playlist
-        $playlists = Playlist::all();
 
-        // Memeriksa apakah ada daftar putar yang ditemukan
+    public function show_all_playlist(Request $request)
+    {
+        $jwt = $request->bearerToken();
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
+
+        // Mengambil semua daftar putar dengan users_id yang sesuai
+        $playlists = Playlist::where('users_id', $decode->id_login)->get();
+
+
         if ($playlists->isNotEmpty()) {
-            // Mengubah data daftar putar menjadi array
+
             $playlistData = $playlists->toArray();
 
             return response()->json([
@@ -344,9 +368,16 @@ class UserController extends Controller
         }
     }
 
-    public function show_playlist($id)
+
+    public function show_playlist($id, Request $request)
     {
-        $playlist = Playlist::find($id);
+        $jwt = $request->bearerToken();
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
+
+        $playlist = Playlist::where(
+            'users_id',
+            $decode->id_login
+        )->find($id);
         $songs = Song::where('id', $id)->get();
 
         if (!$playlist) {
@@ -366,6 +397,7 @@ class UserController extends Controller
             'songs' => $songs,
         ], 200);
     }
+
 
     public function edit_playlist(Request $request, $id)
     {
