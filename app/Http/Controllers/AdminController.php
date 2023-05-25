@@ -344,7 +344,7 @@ class AdminController extends Controller
             'cover' => 'required|mimes:png,jpg,jpeg|max:2048',
             'lagu' => 'required|file|mimes:mp3',
             'tanggal_rilis' => 'required|date',
-            'status' => 'required|in:pending,published,unpublished',
+            'status' => 'required|in:Pending,Published,Unpublished',
             // 'id_label' => 'nullable|exists:labels,id',
             'id_album' => 'nullable|exists:albums,id',
             'mood' => 'nullable|in:Bahagia, Sedih, Romantis, Santai, Enerjik, Motivasi, Eksperimental, Sentimental, Menghibur, Gelisah, Inspiratif, Tenang, Semangat, Melankolis, Penuh energi, Memikat, Riang, Reflektif, Optimis, Bersemangat',
@@ -365,45 +365,35 @@ class AdminController extends Controller
         $file = $request->file('lagu');
         $laguExtension = $file->getClientOriginalExtension();
         $laguName = uniqid() . '_' . time() . '.' . $laguExtension;
-        $laguPath = 'lagu/' . $laguName;
-        $file->move(public_path('lagu'), $laguPath);
+        $laguPath = 'songs/' . $laguName;
+        $file->move(public_path('songs'), $laguPath);
         $laguUrl = asset($laguPath);
 
         $cover = $request->file('cover');
         $coverExtension = $cover->getClientOriginalExtension();
         $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
-        $coverPath = 'cover/' . $coverName;
-        $cover->move(public_path('cover'), $coverPath);
+        $coverPath = 'covers/' . $coverName;
+        $cover->move(public_path('covers'), $coverPath);
         $coverUrl = asset($coverPath);
 
         $song = new Song();
-        $song->judul = $request->judul;
-        $song->cover = $coverUrl;
-        $song->lagu = $laguUrl;
-        $song->tanggal_rilis = $request->tanggal_rilis;
-        $song->status = $request->status ?? 'pending'; // Menggunakan nilai default 'pending' jika status tidak disertakan dalam request
-        $song->id_user = $decode->id_login;
-        $song->id_album = $request->id_album;
-        $song->mood = $request->mood;
-        $song->genre = $request->genre;
+        $song->songs_title = $request->judul;
+        $song->songs_cover = $coverUrl;
+        $song->songs_song = $laguUrl;
+        $song->songs_release_date = $request->tanggal_rilis;
+        $song->songs_status = $request->status ?? 'pending'; // Menggunakan nilai default 'pending' jika status tidak disertakan dalam request
+        $song->users_id = $decode->id_login;
+        $song->albums_id = $request->id_album;
+        $song->songs_mood = $request->mood;
+        $song->songs_genre = $request->genre;
         $song->save();
 
         return response()->json(
             [
+                "status" => "success",
+                'code' => 200,
                 'message' => 'Lagu berhasil diunggah',
-                'status' => 200,
-                'data' => [
-                    'judul' => $song->judul,
-                    'cover' => $coverUrl,
-                    'lagu' => $laguUrl,
-                    'tanggal_rilis' => $song->tanggal_rilis,
-                    'status' => $song->status,
-                    'id_user' => $song->id_user,
-                    'id_label' => $song->id_label,
-                    'id_album' => $song->id_album,
-                    'mood' => $song->mood,
-                    'genre' => $song->genre,
-                ],
+                'data' => $song
             ],
             200
         );
@@ -418,8 +408,9 @@ class AdminController extends Controller
         $songs = Song::all();
 
         return response()->json([
+            "status" => "success",
+            "code" => 200,
             'message' => 'Berhasil menampilkan daftar lagu',
-            'statusCode' => 200,
             'data' => $songs,
         ], 200);
     }
@@ -429,21 +420,30 @@ class AdminController extends Controller
     {
 
         $song = Song::find($id);
+        $user = User::find($song->users_id);
 
         if (!$song) {
             return response()->json(
                 [
-                    'message' => 'Lagu Tidak di Temukan',
-                    'statusCode' => 404,
+                    "status" => "error",
+                    "code" => 404,
+                    "message" => 'Lagu Tidak di Temukan',
                 ],
                 404
             );
         }
 
         return response()->json([
-            'message' => 'Lagu dengan id : ' . $id,
-            'statusCode' => 200,
-            'data' => $song,
+            "status" => "success",
+            "code" => 200,
+            "message" => 'Lagu dengan id : ' . $id,
+            "data" => [
+                "song" => $song,
+                "artist" => [
+                    "artist" => $user->users_name,
+                    "email" => $user->users_email
+                ]
+            ]
         ], 200);
     }
 
@@ -484,69 +484,70 @@ class AdminController extends Controller
             ], 404);
         }
 
-        // Periksa apakah pengguna memiliki hak akses untuk mengedit lagu
-        if ($decode->id_login != $song->id_user) {
-            return response()->json([
-                'message' => 'Unauthorized',
-                'status' => 401,
-            ], 401);
-        }
 
         // Update data lagu
-        $song->judul = $request->judul;
-        $song->tanggal_rilis = $request->tanggal_rilis;
-        $song->status = $request->status;
+        $song->songs_title = $request->judul;
+        $song->songs_release_date = $request->tanggal_rilis;
+        $song->songs_status = $request->status ?? 'pending'; // Menggunakan nilai default 'pending' jika status tidak disertakan dalam request
+        $song->users_id = $decode->id_login;
+        $song->albums_id = $request->id_album;
+        $song->songs_mood = $request->mood;
+        $song->songs_genre = $request->genre;
 
         // Cek apakah ada file cover yang diunggah
         if ($request->hasFile('cover')) {
             $cover = $request->file('cover');
             $coverExtension = $cover->getClientOriginalExtension();
             $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
-            $coverPath = 'cover/' . $coverName;
-            $cover->move(public_path('cover'), $coverPath);
+            $coverPath = 'covers/' . $coverName;
+            $cover->move(public_path('covers'), $coverPath);
             $coverUrl = asset($coverPath);
 
             // Menghapus file cover lama jika ada
-            if ($song->cover && Storage::exists(parse_url($song->cover, PHP_URL_PATH))) {
-                Storage::delete(parse_url(
-                    $song->cover,
-                    PHP_URL_PATH
-                ));
+            if ($song->songs_cover) {
+                $oldCoverPath = public_path('covers/' . basename($song->songs_cover));
+                if (file_exists($oldCoverPath)) {
+                    unlink($oldCoverPath);
+                }
             }
 
-            $song->cover = $coverUrl;
+            $song->songs_cover = $coverUrl;
         }
 
-        // Cek apakah ada file lagu yang diunggah
         if ($request->hasFile('lagu')) {
             $file = $request->file('lagu');
             $laguExtension = $file->getClientOriginalExtension();
             $laguName = uniqid() . '_' . time() . '.' . $laguExtension;
-            $laguPath = 'lagu/' . $laguName;
-            $file->move(public_path('lagu'), $laguPath);
+            $laguPath = 'songs/' . $laguName;
+            $file->move(public_path('songs'), $laguPath);
             $laguUrl = asset($laguPath);
 
             // Menghapus file lagu lama jika ada
-            if ($song->lagu && Storage::exists(parse_url($song->lagu, PHP_URL_PATH))) {
-                Storage::delete(parse_url($song->lagu, PHP_URL_PATH));
+            if ($song->songs_song) {
+                $oldCoverPath = public_path('songs/' . basename($song->songs_song));
+                if (file_exists($oldCoverPath)) {
+                    unlink($oldCoverPath);
+                }
             }
 
-            $song->lagu = $laguUrl;
+            $song->songs_song = $laguUrl;
         }
 
         $song->save();
 
         return response()->json([
-            'message' => 'Lagu berhasil di sunting',
+            'message' => 'Lagu berhasil diubah',
             'status' => 200,
             'data' => [
-                'judul' => $song->judul,
-                'cover' => $song->cover,
-                'lagu' => $song->lagu,
+                'judul' => $song->songs_title,
+                'cover' => $song->songs_cover,
+                'lagu' => $song->songs_song,
                 'tanggal_rilis' => $song->tanggal_rilis,
-                'status' => $song->status,
-                'id_user' => $song->id_user,
-                'id_label' => $song->id_label,
+                'status' => $song->songs_status,
+                'id_user' => $song->users_id,
+                'id_album' => $song->albums_id,
+                'mood' => $song->songs_mood,
+                'genre' => $song->songs_genre,
             ],
         ], 200);
     }
@@ -555,13 +556,34 @@ class AdminController extends Controller
     public function delete_song($id)
     {
 
-        Song::where('id', $id)->delete();
+        $song = Song::find($id);
+
+        if (!$song) {
+            return response()->json([
+                "status" => "error",
+                "code" => 404,
+                'message' => 'Lagu tidak ditemukan',
+            ], 404);
+        }
+
+        $song->delete();
+
+        $oldCoverPath = public_path('songs/' . basename($song->songs_song));
+        if (file_exists($oldCoverPath)) {
+            unlink($oldCoverPath);
+        }
+
+        $oldCoverPath = public_path('covers/' . basename($song->songs_cover));
+        if (file_exists($oldCoverPath)) {
+            unlink($oldCoverPath);
+        }
+
 
         return response()->json([
-            "data" => [
-                "message" => "Lagu berhasil di hapus",
-                "id" => $id
-            ]
+            "status" => "success",
+            "code" => 200,
+            "message" => "Lagu berhasil di hapus",
+            "data" => $song
         ], 200);
     }
 
@@ -725,7 +747,6 @@ class AdminController extends Controller
         return response()->json([
             'message' => 'Album berhasil diupdate',
             'status' => 200,
-            'base' => public_path('album/646e41ab7b4de_1684947371.PNG'),
             'data' => $album,
         ], 200);
     }
@@ -733,12 +754,30 @@ class AdminController extends Controller
 
     public function delete_album($id)
     {
+        $album = Album::find($id);
 
-        Album::where('id', $id)->delete();
+        if (!$album) {
+            return response()->json([
+                "status" => "error",
+                "code" => 404,
+                'message' => 'Album tidak ditemukan',
+            ], 404);
+        }
+
+
+        $album->delete();
+
+        // Menghapus file cover lama jika ada
+        if ($album->albums_cover) {
+            $oldCoverPath = public_path('album/' . basename($album->albums_cover));
+            if (file_exists($oldCoverPath)) {
+                unlink($oldCoverPath);
+            }
+        }
 
         return response()->json([
             "data" => [
-                "message" => "Album berhasil di hapus",
+                "message" => "Album berhasil dihapus",
                 "id" => $id
             ]
         ], 200);
