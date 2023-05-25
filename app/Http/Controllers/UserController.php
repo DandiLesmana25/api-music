@@ -412,52 +412,91 @@ class UserController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Data tidak valid',
-                'status' => 400,
-                'errors' => $validator->errors(),
+                "status" => "error",
+                "code" => 400,
+                "message" => $validator->errors(),
             ], 400);
         }
 
-        $playlist = Playlist::findOrFail($id);
+        $playlist = Playlist::where('users_id', $decode->id_login)->find($id);
+
+        if (!$playlist) {
+            return response()->json([
+                "status" => "error",
+                "code" => 404,
+                "message" => "Playlist tidak ditemukan",
+            ], 404);
+        }
 
         // Mengupdate nama playlist
-        $playlist->nama = $request->input('nama');
+        $playlist->playlists_name = $request->input('nama');
 
         // Mengupdate status playlist
-        $playlist->status = $request->input('status');
+        $playlist->playlists_status = $request->input('status');
 
         // Mengupdate gambar playlist jika ada
-        if ($request->hasFile('gambar')) {
-            $cover = $request->file('gambar');
+        if ($request->hasFile('cover')) {
+            $cover = $request->file('cover');
             $coverExtension = $cover->getClientOriginalExtension();
             $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
             $coverPath = 'playlist/' . $coverName;
             $cover->move(public_path('playlist'), $coverPath);
 
-            $playlist->gambar = asset($coverPath);
+            // Menghapus file cover lama jika ada
+            if ($playlist->playlists_cover) {
+                $oldCoverPath = public_path('playlist/' . basename($playlist->playlists_cover));
+                if (file_exists($oldCoverPath)) {
+                    unlink($oldCoverPath);
+                }
+            }
+
+            $playlist->playlists_cover = url($coverPath);
         }
 
         // Menyimpan perubahan pada playlist
         $playlist->save();
 
         return response()->json([
-            'message' => 'Playlist updated',
+            "status" => "success",
+            "code" => 200,
+            'message' => 'Playlist diupdate',
             'data' => $playlist,
         ]);
     }
 
+
+
+
     public function delete_playlist($id)
     {
+        $playlist = Playlist::find($id);
 
-        Playlist::where('id', $id)->delete();
+        if (!$playlist) {
+            return response()->json([
+                "status" => "error",
+                "code" => 404,
+                "message" => "Playlist tidak ditemukan",
+            ], 404);
+        }
+
+        if ($playlist->playlists_cover) {
+            $oldCoverPath = public_path('playlist/' . basename($playlist->playlists_cover));
+            if (file_exists($oldCoverPath)) {
+                unlink($oldCoverPath);
+            }
+        }
+
+        $playlist->delete();
 
         return response()->json([
             "data" => [
-                "message" => "Playlist berhasil di hapus",
+                "message" => "Playlist berhasil dihapus",
                 "id" => $id
             ]
         ], 200);
     }
+
+
 
     public function add_to_playlist(Request $request)
     {
