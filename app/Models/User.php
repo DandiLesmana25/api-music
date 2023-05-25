@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -16,62 +17,44 @@ class User extends Authenticatable
     // definisikan tabel secara manual
     protected $table = 'users';
 
-    /** 
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
-        'last_login'
+        'users_name',
+        'users_email',
+        'users_password',
+        'users_last_login',
+        'users_role',
     ];
 
     public function songs()
     {
-        return $this->hasMany(Song::class, 'id_user');
+        return $this->hasMany(Song::class, 'users_id');
     }
-    
+
     public function viewedSongs()
     {
-        return $this->hasMany(ViewSong::class, 'id_user');
+        return $this->hasMany(ViewSong::class, 'users_id');
     }
 
-    /**
-     * Get all of the playlist for the User
-     *
-     * @return \Illuminate\DatabPlaylistquent\Relaid_userny
-     */
-
-
-     public function playlist(): HasMany
-    {
-        return $this->hasMany(Playlist::class, 'id_user', 'id');
-    }
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'users_password'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
 
-    public function setPasswordAttribute($password)
+    public function setPasswordAttribute($users_password)
     {
-        $this->attributes['password'] = bcrypt($password);
+        $this->attributes['users_password'] = bcrypt($users_password);
     }
+
+
+    public function request_creator($value)
+    {
+        $this->req_upgrade = $value;
+        $this->save();
+    }
+
+    // public function last_login()
+    // {
+    //     $this->req_upgrade = now()->timestamp;
+    //     $this->save();
+    // }
 }

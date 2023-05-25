@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Hash;
 
 return new class extends Migration
 {
@@ -15,13 +16,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->enum('role', ['admin', 'user', 'creator'])->default('user'); //tambah 1 role
-            $table->enum('req_upgrade', ['request', 'creator'])->nullable()->default(null);
-            $table->timestamp('last_login')->nullable();
+            $table->string('users_name');
+            $table->string('users_email')->unique();
+            $table->string('users_password');
+            $table->enum('users_role', ['admin', 'user', 'creator'])->default('user');
+            $table->enum('users_req_upgrade', ['request', 'creator'])->nullable()->default(null);
+            $table->timestamp('users_last_login')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

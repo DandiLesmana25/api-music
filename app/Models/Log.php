@@ -9,7 +9,7 @@ class Log extends Model
 {
     use HasFactory;
 
-    protected $table = 'log';
+    protected $table = 'logs';
 
-    protected $fillable = ['module', 'action', 'useraccess'];
+    protected $fillable = ['logs_module', 'logs_action', 'users_id'];
 }

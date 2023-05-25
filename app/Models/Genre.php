@@ -17,7 +17,7 @@ class Genre extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'genre_name',
     ];
 
 
@@ -25,5 +25,4 @@ class Genre extends Model
     {
         return $this->hasMany(Song::class);
     }
-
 }

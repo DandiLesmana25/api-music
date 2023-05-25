@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateSongsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,16 +15,23 @@ return new class extends Migration
     {
         Schema::create('songs', function (Blueprint $table) {
             $table->id();
-            $table->string('judul');
-            $table->text('cover');
-            $table->text('lagu');
-            $table->date('tanggal_rilis');
-            $table->enum('status', ['pending', 'published', 'unpublished']);
-            $table->unsignedBigInteger('id_user');
-            $table->unsignedBigInteger('id_label')->nullable()->default(null);
-            $table->foreign('id_user')->references('id')->on('users');
-            $table->foreign('id_label')->references('id')->on('labels')->onDelete('set null');
+            $table->string('songs_title');
+            $table->text('songs_cover');
+            $table->text('songs_song');
+            $table->date('songs_release_date');
+            $table->enum('songs_status', ['pending', 'published', 'unpublished']);
+            $table->unsignedBigInteger('users_id');
+            $table->unsignedBigInteger('albums_id')->nullable()->default(null);
+            $table->string('songs_mood')->nullable();
+            $table->string('songs_genre')->nullable();
+            $table->foreign('users_id')->references('id')->on('users');
+            $table->foreign('albums_id')->references('id')->on('albums')->onDelete('set null');
             $table->timestamps();
+        });
+
+        Schema::table('songs', function (Blueprint $table) {
+            $table->index('users_id');
+            $table->index('albums_id');
         });
     }
 
@@ -37,4 +44,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('songs');
     }
-};
+}

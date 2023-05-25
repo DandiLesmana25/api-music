@@ -12,19 +12,17 @@ class DetailPlaylist extends Model
     protected $table = 'detail_playlist';
 
     protected $fillable = [
-        'playlist_id',
-        'song_id',
+        'detail_playlist_playlists_id',
+        'detail_playlist_song_id',
     ];
 
     public function playlist()
     {
-        return $this->belongsTo(Playlist::class, 'playlist_id');
+        return $this->belongsTo(Playlist::class, 'detail_playlist_playlists_id');
     }
 
     public function song()
     {
-        return $this->belongsTo(Song::class, 'song_id');
+        return $this->belongsTo(Song::class, 'detail_playlist_song_id');
     }
-
-    
 }

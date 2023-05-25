@@ -9,15 +9,15 @@ class ViewSong extends Model
 {
     // use HasFactory;
     protected $table = 'view_song';
-    protected $fillable = ['id_user', 'id_lagu'];
+    protected $fillable = ['users_id', 'songs_id'];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'users_id');
     }
 
     public function song()
     {
-        return $this->belongsTo(Song::class, 'id_lagu');
+        return $this->belongsTo(Song::class, 'songs_id');
     }
 }

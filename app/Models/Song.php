@@ -12,29 +12,24 @@ class Song extends Model
 {
     protected $table = 'songs';
 
-    protected $fillable = ['judul', 'cover', 'lagu', 'tanggal_rilis', 'status', 'id_user', 'id_label'];
+    protected $fillable = ['songs_title', 'songs_cover', 'songs_song', 'songs_release_date', 'songs_status', 'users_id', 'albums_id', 'songs_mood', 'songs_genre'];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'users_id');
     }
 
-    public function label()
-    {
-        return $this->belongsTo(Label::class, 'id_label');
-    }
 
     public function viewedSong()
     {
-        return $this->hasMany(ViewSong::class, 'id_lagu');
+        return $this->hasMany(ViewSong::class, 'songs_id');
     }
 
-    
 
 
     public function detailPlaylists()
     {
-        return $this->hasMany(DetailPlaylist::class, 'song_id', 'id');
+        return $this->hasMany(DetailPlaylist::class, 'songs_id', 'id');
     }
 
 
@@ -43,12 +38,4 @@ class Song extends Model
      *
      * @return \Illuminate\Genrebase\Eloqugenre_idns\BelongsTo
      */
-    public function genre(): BelongsTo
-    {
-        return $this->belongsTo(Genre::class, 'genre_id', 'other_key');
-    }
-
-    
-
-    
 }
