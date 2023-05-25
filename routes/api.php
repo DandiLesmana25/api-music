@@ -82,6 +82,7 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::delete('playlist/{id}', [UserController::class, 'delete_playlist']);
 
     Route::post('playlist/add/song', [UserController::class, 'add_to_playlist']);
+    Route::delete('playlist/remove/song/{playlist_id}/{song_id}', [UserController::class, 'remove_from_playlist']);
 
     // update password
     Route::put('update/{id}', [UserController::class, 'update_password']);

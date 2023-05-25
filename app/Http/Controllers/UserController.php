@@ -372,13 +372,18 @@ class UserController extends Controller
     public function show_playlist($id, Request $request)
     {
         $jwt = $request->bearerToken();
-        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
+        $decode = JWT::decode($jwt, new Key(
+            env('JWT_SECRET_KEY'),
+            'HS256'
+        ));
 
         $playlist = Playlist::where(
             'users_id',
             $decode->id_login
         )->find($id);
-        $songs = Song::where('id', $id)->get();
+        $detail_playlist = DetailPlaylist::where('detail_playlist_playlists_id', $id)->get();
+        $songIds = $detail_playlist->pluck('detail_playlist_song_id');
+        $songs = Song::whereIn('id', $songIds)->get();
 
         if (!$playlist) {
             return response()->json(
@@ -397,6 +402,7 @@ class UserController extends Controller
             'songs' => $songs,
         ], 200);
     }
+
 
 
     public function edit_playlist(Request $request, $id)
@@ -507,20 +513,71 @@ class UserController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
+                "status" => "error",
+                "code" => 400,
                 'message' => 'Data tidak valid',
-                'status' => 400,
                 'errors' => $validator->errors(),
             ], 400);
         }
 
         $detailPlaylist = DetailPlaylist::create([
-            'playlists_id' => $request->input('playlist_id'),
-            'song_id' => $request->input('song_id'),
+            'detail_playlist_playlists_id' => $request->input('playlist_id'),
+            'detail_playlist_song_id' => $request->input('song_id'),
         ]);
 
         return response()->json([
-            'message' => 'Data added to playlist',
+            "status" => "success",
+            "code" => 200,
+            'message' => 'Lagu berhasil di tambahkan ke playlist',
             'data' => $detailPlaylist,
+        ]);
+    }
+
+
+
+    public function remove_from_playlist(Request $request, $playlist_id, $song_id)
+    {
+        $validator = Validator::make([
+            'playlist_id' => $playlist_id,
+            'song_id' => $song_id,
+        ], [
+            'playlist_id' => 'required|exists:playlists,id',
+            'song_id' => 'required|exists:songs,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    "status" => "error",
+                    "code" => 400,
+                    'message' => 'Data tidak valid',
+                    'errors' => $validator->errors(),
+                ],
+                400
+            );
+        }
+
+        $detailPlaylist = DetailPlaylist::where('detail_playlist_playlists_id', $playlist_id)
+            ->where('detail_playlist_song_id', $song_id)
+            ->first();
+
+        if (!$detailPlaylist) {
+            return response()->json(
+                [
+                    "status" => "error",
+                    "code" => 404,
+                    'message' => 'Lagu tidak ditemukan dalam playlist',
+                ],
+                404
+            );
+        }
+
+        $detailPlaylist->delete();
+
+        return response()->json([
+            "status" => "success",
+            "code" => 200,
+            'message' => 'Lagu berhasil dihapus dari playlist',
         ]);
     }
 }
