@@ -41,7 +41,6 @@ class AuthController extends Controller
             'users_name' => $userData['name'],
             'users_email' => $userData['email'],
             'users_password' => $userData['password'],
-            'users_last_login' => Carbon::now(),
         ]);
 
         $payload = [
@@ -97,13 +96,6 @@ class AuthController extends Controller
 
             $token = JWT::encode($playload, env('JWT_SECRET_KEY'), 'HS256');
 
-            Log::create([
-                'logs_module' => 'login',
-                'logs_action' => 'login',
-                'users_id' => $user->id
-            ]);
-
-            $user->users_last_login = Carbon::now();
             $user->save();
 
             return response()->json([

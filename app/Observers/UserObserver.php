@@ -8,10 +8,10 @@ use App\Models\Log;
 class UserObserver
 {
 
-    public function creating(User $user)
-    {
-        $user->users_last_login = now();
-    }
+    // public function creating(User $user)
+    // {
+    //     $user->users_last_login = now();
+    // }
 
     /**
      * Handle the User "created" event.

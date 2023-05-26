@@ -179,8 +179,8 @@ class AdminController extends Controller
             return response()->json([
                 'status' => 'success',
                 'code' => 200,
+                'message' => 'User dengan id ' . $id . ' berhasil diperbarui',
                 'data' => [
-                    'message' => 'User dengan id ' . $id . ' berhasil diperbarui',
                     'name' => $userData['name'],
                     'email' => $userData['email'],
                     'role' => $userData['role'],
@@ -235,16 +235,25 @@ class AdminController extends Controller
     //Menampilkan akun yang request creator
     public function request_creator()
     {
+        $users = User::where('users_req_upgrade', 'request')->get();
 
-        $users = User::where('req_upgrade', 'request')->get();
+        if ($users->isEmpty()) {
+            return response()->json([
+                "data" => [
+                    'message' => "Tidak ada pengguna yang meminta menjadi creator",
+                    'data' => []
+                ]
+            ], 200);
+        }
 
         return response()->json([
             "data" => [
-                'message' => "User yang request menjadi creator",
+                'message' => "User yang meminta menjadi creator",
                 'data' => $users
             ]
         ], 200);
     }
+
 
 
     public function approve_creator(Request $request, $id)

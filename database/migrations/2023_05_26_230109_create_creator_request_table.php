@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatorRequestsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -20,6 +20,7 @@ class CreatorRequestsTable extends Migration
             $table->string('status')->default('pending');
             $table->text('remarks')->nullable();
             $table->timestamps();
+
             $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
@@ -31,6 +32,6 @@ class CreatorRequestsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('creator_requests');
+        Schema::dropIfExists('creator_request');
     }
-}
+};

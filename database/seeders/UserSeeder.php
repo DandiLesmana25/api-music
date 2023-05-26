@@ -16,8 +16,7 @@ class UserSeeder extends Seeder
             'users_name' => 'Administrator',
             'users_email' => 'admin@admin.com',
             'users_role' => 'admin',
-            'password' => 'admin',
-            'users_last_login' => now(),
+            'users_password' => 'admin',
         ]);
 
         User::Factory()->count(10)->create();

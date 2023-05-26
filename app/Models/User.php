@@ -51,10 +51,4 @@ class User extends Authenticatable
         $this->req_upgrade = $value;
         $this->save();
     }
-
-    // public function last_login()
-    // {
-    //     $this->req_upgrade = now()->timestamp;
-    //     $this->save();
-    // }
 }
