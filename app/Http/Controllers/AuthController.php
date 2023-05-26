@@ -89,6 +89,7 @@ class AuthController extends Controller
         if ($user && Hash::check($request->password, $user->users_password)) {
             $playload = [
                 'name' => $user->users_name,
+                'email' => $user->users_email,
                 'role' => $user->users_role,
                 'iat' => now()->timestamp,
                 'id_login' => $user->id,

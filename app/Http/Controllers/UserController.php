@@ -17,6 +17,8 @@ use App\Models\Album;
 use App\Models\User_Deleted;
 use App\Models\Playlist;
 use App\Models\DetailPlaylist;
+use App\Models\CreatorRequest;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -104,35 +106,42 @@ class UserController extends Controller
             new Key(env('JWT_SECRET_KEY'), 'HS256')
         ); // Decode token
 
-        $user = User::find($decode->id_login);
+        // Cek apakah data request sudah ada sebelumnya
+        $existingRequest = CreatorRequest::where('users_id', $decode->id_login)->first();
 
-        if (!$user) {
+        if ($existingRequest) {
             return response()->json([
-                "status" => "error",
-                "code" => 422,
-                "message" => 'id : ' . $decode->id_login . ' tidak ditemukan'
-            ], 422);
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Anda telah mengirim permintaan sebelumnya'
+            ], 400);
         }
 
-        // Ubah nilai kolom users_req_upgrade
-        $user->users_req_upgrade = 'request';
-        $user->save();
+        // Ambil inputan remarks dari request jika ada
+        $remarks = $request->input('remarks');
 
-        return response()->json(
-            [
-                'data' => [
-                    "status" => "success",
-                    "code" => 200,
-                    "message" => 'Berhasil request creator',
-                    "data" => [
-                        'name' => $user->users_name,
-                        'email' => $user->users_email,
-                    ]
+        // Simpan data request ke tabel creator_requests
+        $creatorRequest = new CreatorRequest();
+        $creatorRequest->users_id = $decode->id_login;
+        $creatorRequest->request_date = now();
+        $creatorRequest->status = 'request';
+        $creatorRequest->remarks = $remarks; // Set inputan remarks
+        $creatorRequest->save();
+
+        return response()->json([
+            'data' => [
+                "status" => "success",
+                "code" => 200,
+                "message" => 'Berhasil request creator',
+                "data" => [
+                    'name' => $decode->name,
+                    'email' => $decode->email,
                 ]
-            ],
-            200
-        );
+            ]
+        ], 200);
     }
+
+
 
 
 

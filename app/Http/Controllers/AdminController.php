@@ -16,6 +16,7 @@ use App\Models\Song;
 use App\Models\User;
 use App\Models\Album;
 use App\Models\User_Deleted;
+use App\Models\CreatorRequest;
 use Illuminate\Session\Store;
 
 class AdminController extends Controller
@@ -173,7 +174,6 @@ class AdminController extends Controller
                 'users_email' => $userData['email'],
                 'users_role' => $userData['role'],
                 'users_password' => bcrypt($userData['password']),
-                'users_last_login' => Carbon::now(),
             ]);
 
             return response()->json([
@@ -235,7 +235,7 @@ class AdminController extends Controller
     //Menampilkan akun yang request creator
     public function request_creator()
     {
-        $users = User::where('users_req_upgrade', 'request')->get();
+        $users = CreatorRequest::where('status', 'request')->get();
 
         if ($users->isEmpty()) {
             return response()->json([
@@ -262,37 +262,46 @@ class AdminController extends Controller
 
         $decode = JWT::decode(
             $jwt,
-            new Key(
-                env('JWT_SECRET_KEY'),
-                'HS256'
-            )
+            new Key(env('JWT_SECRET_KEY'), 'HS256')
         ); // Decode token
 
-        $user = User::find($id);
+        $creatorRequest = CreatorRequest::find($id);
 
-        if (!$user) {
+        if (!$creatorRequest) {
             return response()->json([
-                "data" => [
-                    'message' => 'id : ' . $id . ' tidak ditemukan'
+                'data' => [
+                    'message' => 'Permintaan dengan id: ' . $id . ' tidak ditemukan'
                 ]
             ], 422);
         }
 
+        $user = User::find($creatorRequest->users_id);
 
-        // Ubah nilai kolom req_upgrade
-        $user->req_upgrade = 'creator';
-        $user->role = 'creator';
+        if (!$user) {
+            return response()->json([
+                'data' => [
+                    'message' => 'User dengan id: ' . $creatorRequest->users_id . ' tidak ditemukan'
+                ]
+            ], 422);
+        }
+
+        $user->users_role = 'creator';
         $user->save();
+
+        $creatorRequest->status = 'approve';
+        $creatorRequest->save();
 
         return response()->json([
             'data' => [
-                "message" => 'id ' . $id . ' Berhasil menjadi creator',
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
+                'message' => 'User dengan id ' . $user->id . ' berhasil menjadi creator',
+                'name' => $user->users_name,
+                'email' => $user->users_email,
+                'role' => $user->users_role,
             ]
         ], 200);
     }
+
+
 
 
     public function reset_password(Request $request, $id)
@@ -317,7 +326,7 @@ class AdminController extends Controller
             ], 422);
         }
 
-        $user->password = bcrypt('user');
+        $user->users_password = bcrypt('user');
         $user->save();
 
         return response()->json([
@@ -354,7 +363,6 @@ class AdminController extends Controller
             'lagu' => 'required|file|mimes:mp3',
             'tanggal_rilis' => 'required|date',
             'status' => 'required|in:Pending,Published,Unpublished',
-            // 'id_label' => 'nullable|exists:labels,id',
             'id_album' => 'nullable|exists:albums,id',
             'mood' => 'nullable|in:Bahagia, Sedih, Romantis, Santai, Enerjik, Motivasi, Eksperimental, Sentimental, Menghibur, Gelisah, Inspiratif, Tenang, Semangat, Melankolis, Penuh energi, Memikat, Riang, Reflektif, Optimis, Bersemangat',
             'genre' => 'nullable|in:Pop, Rock, Hip-Hop, R&B, Country, Jazz, Electronic, Dance, Reggae, Folk, Classical, Alternative, Indie, Metal, Punk, Blues, Soul, Funk, Latin, World',
