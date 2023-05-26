@@ -3,16 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CreatorController;
-use App\Http\Controllers\CretorController;
-use App\Http\Controllers\LabelController;
-use App\Http\Controllers\PlaylistController;
 use App\Http\Controllers\DetailPlaylistController;
-
-use App\Http\Controllers\MusicController;
 
 
 
@@ -110,11 +104,20 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
 
 Route::middleware(['creator.api'])->prefix('creator')->group(function () {
 
+    //Music Management
+    Route::get('song/{id}', [CreatorController::class, 'songs_index_id']);
+    Route::get('lastplay', [CreatorController::class, 'last_play']);
+    Route::get('trending', [CreatorController::class, 'trending']);
+    Route::get('mood', [CreatorController::class, 'mood']);
+
     Route::post('playlists', [CreatorController::class, 'create_playlist']);
     Route::get('playlists', [CreatorController::class, 'show_all_playlist']);
     Route::get('playlist/{id}', [CreatorController::class, 'show_playlist']);
     Route::put('playlist/{id}', [CreatorController::class, 'edit_playlist']);
     Route::delete('playlist/{id}', [CreatorController::class, 'delete_playlist']);
+
+    Route::post('playlist/add/song', [CreatorController::class, 'add_to_playlist']);
+    Route::delete('playlist/remove/song/{playlist_id}/{song_id}', [CreatorController::class, 'remove_from_playlist']);
 
     // update password
     Route::put('update/{id}', [CreatorController::class, 'update_password']);
@@ -128,15 +131,9 @@ Route::middleware(['creator.api'])->prefix('creator')->group(function () {
     Route::post('profile/creator', [CreatorController::class, 'request_creator']);
 
 
-    //Music Management
-    Route::get('song/{id}', [CreatorController::class, 'songs_index_id']);
-    Route::get('lastplay', [CreatorController::class, 'last_play']);
-    Route::get('trending', [CreatorController::class, 'trending']);
-    Route::get('mood', [CreatorController::class, 'mood']);
-
     //Album Management
     Route::get('albums', [CreatorController::class, 'albums_index']);
-    Route::get('albums/{id}', [CreatorController::class, 'albums_index_id']);
+    Route::get('album/{id}', [CreatorController::class, 'albums_index_id']);
 
     //Search
     Route::get('search', [CreatorController::class, 'search']);
