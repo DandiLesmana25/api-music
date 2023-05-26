@@ -30,16 +30,17 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'code' => 400,
-                'messages' => $validator->messages()
+                'messages' => $validator->errors()->all()
             ], 400);
         }
+
 
         $userData = $validator->validated();
 
         $user = User::create([
             'users_name' => $userData['name'],
             'users_email' => $userData['email'],
-            'users_password' => bcrypt($userData['password']),
+            'users_password' => $userData['password'],
             'users_last_login' => Carbon::now(),
         ]);
 
@@ -51,11 +52,6 @@ class AuthController extends Controller
 
         $token = JWT::encode($payload, env('JWT_SECRET_KEY'), 'HS256');
 
-        // Log::create([
-        //     'logs_module' => 'register',
-        //     'logs_action' => 'register account',
-        //     'users_id' => $user->id
-        // ]);
 
         return response()->json(
             [
@@ -85,7 +81,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'code' => 400,
-                'messages' => $validator->messages()
+                'messages' => $validator->errors()->all()
             ], 400);
         }
 

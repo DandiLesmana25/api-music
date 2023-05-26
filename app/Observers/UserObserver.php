@@ -22,21 +22,17 @@ class UserObserver
             'logs_module' => 'register',
             'logs_action' => 'register account',
             'users_id' => $user->id,
-            'updated_at' => now(),
-            'created_at' => now(),
         ]);
     }
-
 
     /**
      * Handle the User "updated" event.
      */
     public function updated(User $user): void
     {
-        //simpan ke dalam tabel log, ini dilakukan setelah user berhasil di sunting
         Log::create([
             'logs_module' => 'update',
-            'logs_action' => 'update users table',
+            'logs_action' => 'update last login',
             'users_id' => $user->id
         ]);
     }
@@ -58,7 +54,7 @@ class UserObserver
      */
     public function restored(User $user): void
     {
-        //
+        // Implementasi jika perlu
     }
 
     /**
@@ -66,6 +62,6 @@ class UserObserver
      */
     public function forceDeleted(User $user): void
     {
-        //
+        // Implementasi jika perlu
     }
 }

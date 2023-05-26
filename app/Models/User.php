@@ -21,7 +21,6 @@ class User extends Authenticatable
         'users_name',
         'users_email',
         'users_password',
-        'users_last_login',
         'users_role',
     ];
 
@@ -40,10 +39,11 @@ class User extends Authenticatable
     ];
 
 
-    public function setPasswordAttribute($users_password)
+    public function setUsersPasswordAttribute($password)
     {
-        $this->attributes['users_password'] = bcrypt($users_password);
+        $this->attributes['users_password'] = bcrypt($password);
     }
+
 
 
     public function request_creator($value)
