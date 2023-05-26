@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCreatorRequestsTable extends Migration
+class CreatorRequestsTable extends Migration
 {
     /**
      * Run the migrations.
