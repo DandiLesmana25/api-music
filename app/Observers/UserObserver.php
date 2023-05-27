@@ -8,14 +8,7 @@ use App\Models\Log;
 class UserObserver
 {
 
-    // public function creating(User $user)
-    // {
-    //     $user->users_last_login = now();
-    // }
 
-    /**
-     * Handle the User "created" event.
-     */
     public function created(User $user): void
     {
         Log::create([
@@ -25,9 +18,7 @@ class UserObserver
         ]);
     }
 
-    /**
-     * Handle the User "updated" event.
-     */
+
     public function updated(User $user): void
     {
         Log::create([
@@ -37,9 +28,7 @@ class UserObserver
         ]);
     }
 
-    /**
-     * Handle the User "deleted" event.
-     */
+
     public function deleting(User $user): void
     {
         Log::create([
@@ -49,17 +38,13 @@ class UserObserver
         ]);
     }
 
-    /**
-     * Handle the User "restored" event.
-     */
+
     public function restored(User $user): void
     {
         // Implementasi jika perlu
     }
 
-    /**
-     * Handle the User "force deleted" event.
-     */
+
     public function forceDeleted(User $user): void
     {
         // Implementasi jika perlu

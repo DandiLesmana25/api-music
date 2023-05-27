@@ -6,52 +6,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CreatorController;
-use App\Http\Controllers\DetailPlaylistController;
 
 
 
 // GUEST ROUTE
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
-
-
-
-/*
-admin routes  
-routes untuk admin, dimana terdapat middleware admin dan juga prefix awalan url "admin"
-*/
-
-Route::middleware(['admin.api'])->prefix('admin')->group(function () {
-
-    // DASHBOARD -> OKE
-    Route::get('dashboard', [AdminController::class, 'dashboard']);
-
-    // User Management -> OKE
-    Route::post('register', [AdminController::class, 'register']);
-    Route::get('register', [AdminController::class, 'show_register']);
-    Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);
-    Route::put('register/{id}', [AdminController::class, 'update_register']);
-    Route::delete('register/{id}', [AdminController::class, 'delete_register']);
-    Route::post('register/reset/{id}', [AdminController::class, 'reset_password']);
-
-    Route::get('creator', [AdminController::class, 'request_creator']);
-    Route::post('creator/{id}', [AdminController::class, 'approve_creator']);
-
-
-    // Music Management
-    Route::post('song/add', [AdminController::class, 'add_song']);
-    Route::get('songs', [AdminController::class, 'songs_index']);
-    Route::get('song/{id}', [AdminController::class, 'songs_index_id']);
-    Route::put('song/edit/{id}', [AdminController::class, 'edit_song']);
-    Route::delete('song/delete/{id}', [AdminController::class, 'delete_song']);
-
-    // ALBUM -> OKE
-    Route::post('album/add', [AdminController::class, 'add_album']);
-    Route::get('albums', [AdminController::class, 'albums_index']);
-    Route::get('albums/{id}', [AdminController::class, 'albums_index_id']);
-    Route::put('albums/edit/{id}', [AdminController::class, 'edit_album']);
-    Route::delete('albums/delete/{id}', [AdminController::class, 'delete_album']);
-});
 
 
 
@@ -62,8 +22,7 @@ routes untuk user, dimana terdapat middleware admin dan juga prefix awalan url "
 */
 Route::middleware(['user.api'])->prefix('user')->group(function () {
 
-
-    //Music Management
+    //HOME -> 
     Route::get('song/{id}', [UserController::class, 'songs_index_id']);
     Route::get('lastplay', [UserController::class, 'last_play']);
     Route::get('trending', [UserController::class, 'trending']);
@@ -137,4 +96,45 @@ Route::middleware(['creator.api'])->prefix('creator')->group(function () {
 
     //Search
     Route::get('search', [CreatorController::class, 'search']);
+});
+
+
+
+/*
+admin routes  
+routes untuk admin, dimana terdapat middleware admin dan juga prefix awalan url "admin"
+*/
+
+Route::middleware(['admin.api'])->prefix('admin')->group(function () {
+
+    // DASHBOARD -> OKE
+    Route::get('dashboard', [AdminController::class, 'dashboard']);
+
+    //HOME
+    // Music Management
+    Route::post('song/add', [AdminController::class, 'add_song']);
+    Route::get('songs', [AdminController::class, 'songs_index']);
+    Route::get('song/{id}', [AdminController::class, 'songs_index_id']);
+    Route::put('song/edit/{id}', [AdminController::class, 'edit_song']);
+    Route::delete('song/delete/{id}', [AdminController::class, 'delete_song']);
+
+    // User Management -> OKE
+    Route::post('register', [AdminController::class, 'register']);
+    Route::get('register', [AdminController::class, 'show_register']);
+    Route::get('register/{id}', [AdminController::class, 'show_register_by_id']);
+    Route::put('register/{id}', [AdminController::class, 'update_register']);
+    Route::delete('register/{id}', [AdminController::class, 'delete_register']);
+    Route::post('register/reset/{id}', [AdminController::class, 'reset_password']);
+
+    Route::get('creator', [AdminController::class, 'request_creator']);
+    Route::post('creator/{id}', [AdminController::class, 'approve_creator']);
+
+
+
+    // ALBUM -> OKE
+    Route::post('album/add', [AdminController::class, 'add_album']);
+    Route::get('albums', [AdminController::class, 'albums_index']);
+    Route::get('albums/{id}', [AdminController::class, 'albums_index_id']);
+    Route::put('albums/edit/{id}', [AdminController::class, 'edit_album']);
+    Route::delete('albums/delete/{id}', [AdminController::class, 'delete_album']);
 });
