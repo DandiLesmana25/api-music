@@ -114,6 +114,20 @@ class UserController extends Controller
             ], 422);
         }
 
+        if ($user->users_req_upgrade === 'approved') {
+            return response()->json([
+                "status" => "success",
+                "code" => 200,
+                "message" => "Anda sudah di-approve sebagai creator"
+            ], 200);
+        } elseif ($user->users_req_upgrade === 'rejected') {
+            return response()->json([
+                "status" => "error",
+                "code" => 422,
+                "message" => "Anda telah ditolak sebagai creator"
+            ], 422);
+        }
+
         // Ubah nilai kolom users_req_upgrade
         $user->users_req_upgrade = 'request';
         $user->save();
@@ -133,6 +147,7 @@ class UserController extends Controller
             200
         );
     }
+
 
 
 

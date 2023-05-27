@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User; //memanggil model user
 use Firebase\JWT\JWT; //memanggil library JWT
 use Illuminate\Support\Facades\Validator; //panggil library validator untuk validasi inputan
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+
+use App\Models\User;
+use App\Models\Log;
 
 class AuthController extends Controller
 {
@@ -80,6 +82,12 @@ class AuthController extends Controller
         if ($user && User::validatePassword($request->password, $user->users_password)) {
             $token = User::generateToken($user->users_name, $user->users_email, $user->users_role, $user->id);
 
+            Log::create([
+                'logs_module' => 'login',
+                'logs_action' => 'login account',
+                'users_id' => $user->id
+            ]);
+
             return response()->json([
                 "status" => "success",
                 "code" => 200,
@@ -93,6 +101,7 @@ class AuthController extends Controller
                 "token" => "Bearer {$token}"
             ], 200);
         }
+
 
         return response()->json([
             'status' => 'error',

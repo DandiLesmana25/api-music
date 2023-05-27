@@ -127,9 +127,16 @@ class AdminController extends Controller
     //Menampilkan akun berdasarkan Id
     public function show_register_by_id($id)
     {
-
-        // munculkan akun berdasarkan id
+        // Mencari akun berdasarkan id
         $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                "status" => "error",
+                "code" => 404,
+                "message" => "Data user tidak ditemukan"
+            ], 404);
+        }
 
         return response()->json([
             "status" => "success",
@@ -138,6 +145,7 @@ class AdminController extends Controller
             "data" => $user
         ], 200);
     }
+
 
     //Update akun via admin
     public function update_register(Request $request, $id)
@@ -282,7 +290,7 @@ class AdminController extends Controller
         $user->users_role = 'creator';
         $user->save();
 
-        $creatorRequest->status = 'approve';
+        $creatorRequest->status = 'approved';
         $creatorRequest->save();
 
         return response()->json([
