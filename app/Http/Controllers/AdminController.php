@@ -19,6 +19,7 @@ use App\Models\User_Deleted;
 use App\Models\CreatorRequest;
 use Illuminate\Session\Store;
 
+
 class AdminController extends Controller
 
 {
@@ -50,6 +51,7 @@ class AdminController extends Controller
         return response()->json(["data" => $result]);
     }
 
+
     //**************************************** D A S H B O A R D *****************************************//
 
 
@@ -58,6 +60,7 @@ class AdminController extends Controller
     //*********************************** U S E R   M A N A  G E M E N T ********************************//
 
     //Registrasi akun via admin
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -82,23 +85,10 @@ class AdminController extends Controller
             'users_name' => $userData['name'],
             'users_email' => $userData['email'],
             'users_role' => $userData['role'],
-            'users_password' => bcrypt($userData['password']),
-            'users_last_login' => Carbon::now(),
+            'users_password' => Hash::make($userData['password']),
         ]);
 
-        $payload = [
-            'name' => $userData['name'],
-            'role' => 'user',
-            'iat' => now()->timestamp,
-        ];
-
-        $token = JWT::encode($payload, env('JWT_SECRET_KEY'), 'HS256');
-
-        // Log::create([
-        //     'logs_module' => 'register',
-        //     'logs_action' => 'register account',
-        //     'users_id' => $user->id
-        // ]);
+        $token = User::generateToken($user->users_name, $user->users_email, $user->users_role, $user->id);
 
         return response()->json(
             [
@@ -106,6 +96,7 @@ class AdminController extends Controller
                 "code" => 200,
                 "message" => "Berhasil Registrasi",
                 "data" => [
+                    'id' => $user->id,
                     'name' => $userData['name'],
                     'email' => $userData['email'],
                     'role' => $userData['role'],
@@ -115,6 +106,9 @@ class AdminController extends Controller
             200
         );
     }
+
+
+
 
     //Menampilkan akun terregisrasi
     public function show_register()
