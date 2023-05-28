@@ -20,9 +20,6 @@ return new class extends Migration
             $table->string('users_email')->unique();
             $table->string('users_password');
             $table->enum('users_role', ['admin', 'user', 'creator'])->default('user');
-            $table->enum('users_req_upgrade', ['request', 'creator'])->nullable()->default(null);
-            $table->timestamp('users_last_login')->nullable();
-            $table->rememberToken();
             $table->timestamps();
         });
     }
