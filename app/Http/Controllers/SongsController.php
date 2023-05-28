@@ -34,14 +34,12 @@ class SongsController extends Controller
         $song = Song::find($id);
 
         if (!$song) {
-            return response()->json(
-                [
-                    "status" => "error",
-                    "code" => 404,
-                    'message' => 'Lagu Tidak di Temukan',
-                ],
-                404
-            );
+            return response()->json([
+                "status" => "error",
+                "code" => 404,
+                'message' => 'Lagu Tidak ditemukan',
+                'data' => null,
+            ], 404);
         }
 
         // BUAT LOGIN 
@@ -59,6 +57,8 @@ class SongsController extends Controller
     }
 
 
+
+
     public function last_play(Request $request)
     {
         $jwt = $request->bearerToken(); //ambil token
@@ -72,21 +72,22 @@ class SongsController extends Controller
         $songs = Song::whereIn('id', $latestSongs)->get();
 
         if ($songs->isEmpty()) {
-            return response()->json(
-                [
-                    'message' => 'Tidak ada lagu terbaru yang diputar',
-                    'statusCode' => 404,
-                ],
-                404
-            );
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Tidak ada lagu terbaru yang diputar',
+                'data' => null,
+            ], 404);
         }
 
         return response()->json([
-            'message' => '5 lagu terbaru yang terakhir diputar oleh pengguna',
-            'statusCode' => 200,
+            'status' => 'success',
+            'code' => 200,
+            'message' => '5 lagu terbaru yang terakhir diputar oleh anda',
             'data' => $songs,
         ], 200);
     }
+
 
 
     public function trending(Request $request)
