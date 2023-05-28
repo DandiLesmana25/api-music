@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -41,11 +42,8 @@ class UserController extends Controller
 
     public function update_register(Request $request)
     {
-        $jwt = $request->bearerToken(); //ambil token
-        $decode = JWT::decode(
-            $jwt,
-            new Key(env('JWT_SECRET_KEY'), 'HS256')
-        ); //decode token
+        $jwt = $request->bearerToken(); // Ambil token
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); // Decode token
 
         $user = User::find($decode->id_login);
 
@@ -58,38 +56,41 @@ class UserController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return messageError($validator->messages()->toArray());
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 422,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors()
+                ], 422);
             }
 
-            $data = $request->only([
-                'name', 'password', 'email'
-            ]);
+            $data = [
+                'users_name' => $request->input('name'),
+                'users_email' => $request->input('email')
+            ];
 
             if ($request->has('password')) {
-                $data['password'] = Hash::make($request->input('password'));
+                $data['users_password'] = Hash::make($request->input('password'));
             }
 
-            $user = User::find($decode->id_login);
-            $user->updated_at = Carbon::now();
-            $user->save();
-
-            $user->update($data);
+            $user->update($data); // Menggunakan metode update() untuk memperbarui data
 
             return response()->json([
-                'data' => [
-                    "message" => 'id ' . $decode->id_login . ' berhasil diupdate',
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                ]
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Data pengguna berhasil diperbarui',
+                'data' => $user
             ], 200);
         }
 
         return response()->json([
-            "data" => [
-                'message' => 'id : ' . $decode->id_login . ' tidak ditemukan'
-            ]
-        ], 422);
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'Pengguna tidak ditemukan'
+        ], 404);
     }
+
+
 
 
     public function request_creator(Request $request)

@@ -93,7 +93,10 @@ class PlaylistsController extends Controller
             $playlists = Playlist::all();
         } else {
             // Jika role adalah user atau creator, dapatkan daftar putar yang sesuai dengan users_id
-            $playlists = Playlist::where('users_id', $decode->id_login)->get();
+            $playlists = Playlist::where(function ($query) use ($decode) {
+                $query->where('users_id', $decode->id_login)
+                    ->orWhere('playlists_status', 'public');
+            })->get();
         }
 
         if ($playlists->isNotEmpty()) {
@@ -117,7 +120,6 @@ class PlaylistsController extends Controller
 
 
 
-
     public function show_playlist($id, Request $request)
     {
         $jwt = $request->bearerToken();
@@ -129,8 +131,14 @@ class PlaylistsController extends Controller
             // Jika role adalah admin, dapatkan playlist tanpa memeriksa users_id
             $playlist = Playlist::find($id);
         } else {
-            // Jika role adalah user atau creator, dapatkan playlist sesuai dengan users_id
-            $playlist = Playlist::where('users_id', $decode->id_login)->find($id);
+            // Jika role adalah user atau creator, dapatkan playlist sesuai dengan users_id atau playlist dengan status "public"
+            $playlist = Playlist::where(function ($query) use ($decode, $id) {
+                $query->where('users_id', $decode->id_login)
+                    ->orWhere(function ($query) use ($id) {
+                        $query->where('playlists_status', 'public')
+                            ->where('id', $id);
+                    });
+            })->first();
         }
 
         if (!$playlist) {

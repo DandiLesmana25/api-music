@@ -87,7 +87,10 @@ class AlbumsController extends Controller
         if ($user->role === 'admin') {
             $albums = Album::all();
         } else {
-            $albums = Album::where('users_id', $decode->id_login)->get();
+            $albums = Album::where(function ($query) use ($decode) {
+                $query->where('users_id', $decode->id_login)
+                    ->orWhere('albums_status', 'public'); // Menambahkan kondisi albums_status = public
+            })->get();
         }
 
         if ($albums->isEmpty()) {
@@ -111,35 +114,31 @@ class AlbumsController extends Controller
 
 
 
+
     public function albums_index_id($id)
     {
         $jwt = request()->bearerToken();
         $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
 
-        $user = User::find($decode->id_login);
+
         $album = Album::find($id);
-        $songs = Song::find($id);
+        $songs = Song::where('albums_id', $id)->get();
+        $user = User::find($album->users_id);
 
         if (!$album) {
-            return response()->json(
-                [
-                    "status" => "error",
-                    "code" => 404,
-                    'message' => 'Album Tidak ditemukan',
-                ],
-                404
-            );
+            return response()->json([
+                "status" => "error",
+                "code" => 404,
+                'message' => 'Album Tidak ditemukan',
+            ], 404);
         }
 
-        if ($user->role !== 'admin' && $album->users_id !== $user->id) {
-            return response()->json(
-                [
-                    "status" => "error",
-                    "code" => 403,
-                    'message' => 'Akses ditolak',
-                ],
-                403
-            );
+        if ($user->role !== 'admin' && $album->users_id !== $user->id && $album->albums_status !== 'public') {
+            return response()->json([
+                "status" => "error",
+                "code" => 403,
+                'message' => 'Akses ditolak',
+            ], 403);
         }
 
         return response()->json([
@@ -151,6 +150,7 @@ class AlbumsController extends Controller
             "user" => $user,
         ], 200);
     }
+
 
 
 
@@ -269,6 +269,8 @@ class AlbumsController extends Controller
 
         return response()->json([
             "data" => [
+                "status" => "success",
+                "code" => 200,
                 "message" => "Album berhasil dihapus",
                 "id" => $id
             ]

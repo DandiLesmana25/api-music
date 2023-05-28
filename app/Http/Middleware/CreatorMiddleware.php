@@ -21,7 +21,7 @@ class CreatorMiddleware
             $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decoce token
 
             // kondisi jika role pada token adalah admin, maka lanjut proses selanjutnya
-            if ($decode->role == 'admin') {
+            if ($decode->role == 'creator') {
                 return $next($request);
             } else {
                 // jika bukan role admin

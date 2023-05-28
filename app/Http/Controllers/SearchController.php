@@ -23,16 +23,26 @@ use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
+
     public function search(Request $request)
     {
         $keyword = $request->input('keyword');
+        $jwt = $request->bearerToken();
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
+        $userId = $decode->id_login;
 
         $songs = Song::where('songs_title', 'LIKE', '%' . $keyword . '%')
-            ->orWhere('users_name', 'LIKE', '%' . $keyword . '%')
             ->join('users', 'songs.users_id', '=', 'users.id')
+            ->where(function ($query) use ($userId) {
+                $query->where('songs.songs_status', '=', 'published')
+                    ->orWhere(function ($query) use ($userId) {
+                        $query->where('songs.songs_status', '=', 'pending')
+                            ->where('songs.users_id', '=', $userId);
+                    });
+            })
             ->select('songs.*', 'users.users_name')
             ->get();
 
-        return response()->json($songs);
+        return $songs;
     }
 }
