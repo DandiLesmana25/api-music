@@ -5,7 +5,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\CreatorController;
+use App\Http\Controllers\AlbumsController;
+use App\Http\Controllers\PlaylistsController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SongsController;
+
+
 
 
 
@@ -22,39 +27,38 @@ routes untuk user, dimana terdapat middleware admin dan juga prefix awalan url "
 */
 Route::middleware(['user.api'])->prefix('user')->group(function () {
 
-    //HOME -> 
-    Route::get('song/{id}', [UserController::class, 'songs_index_id']);
-    Route::get('lastplay', [UserController::class, 'last_play']);
-    Route::get('trending', [UserController::class, 'trending']);
-    Route::get('mood', [UserController::class, 'mood']);
 
-    Route::post('playlists', [UserController::class, 'create_playlist']);
-    Route::get('playlists', [UserController::class, 'show_all_playlist']);
-    Route::get('playlist/{id}', [UserController::class, 'show_playlist']);
-    Route::put('playlist/{id}', [UserController::class, 'edit_playlist']);
-    Route::delete('playlist/{id}', [UserController::class, 'delete_playlist']);
+    Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
+    Route::get('lastplay', [SongsController::class, 'last_play']);
+    Route::get('trending', [SongsController::class, 'trending']);
+    Route::get('mood', [SongsController::class, 'mood']);
 
-    Route::post('playlist/add/song', [UserController::class, 'add_to_playlist']);
-    Route::delete('playlist/remove/song/{playlist_id}/{song_id}', [UserController::class, 'remove_from_playlist']);
 
-    // update password
-    Route::put('update/{id}', [UserController::class, 'update_password']);
+    Route::post('playlists', [PlaylistsController::class, 'create_playlist']);
+    Route::get('playlists', [PlaylistsController::class, 'show_all_playlist']);
+    Route::get('playlist/{id}', [PlaylistsController::class, 'show_playlist']);
+    Route::put('playlist/{id}', [PlaylistsController::class, 'edit_playlist']);
+    Route::delete('playlist/{id}', [PlaylistsController::class, 'delete_playlist']);
+    Route::post('playlist/add/song', [PlaylistsController::class, 'add_to_playlist']);
+    Route::delete('playlist/remove/song/{playlist_id}/{song_id}', [PlaylistsController::class, 'remove_from_playlist']);
 
     Route::get('playlists/detail-playlists', [DetailPlaylistController::class, 'index']);
     Route::get('playlists/detail-playlists/{id}', [DetailPlaylistController::class, 'show']);
+
 
     //User Management
     Route::get('profile', [UserController::class, 'show_register_by_id']);
     Route::put('profile/update', [UserController::class, 'update_register']);
     Route::post('profile/creator', [UserController::class, 'request_creator']);
+    Route::put('update/{id}', [UserController::class, 'update_password']);
 
 
     //Album Management
-    Route::get('albums', [UserController::class, 'albums_index']);
-    Route::get('album/{id}', [UserController::class, 'albums_index_id']);
+    Route::get('albums', [AlbumsController::class, 'albums_index']);
+    Route::get('album/{id}', [AlbumsController::class, 'albums_index_id']);
 
     //Search
-    Route::get('search', [UserController::class, 'search']);
+    Route::get('search', [SearchController::class, 'search']);
 });
 
 
@@ -63,39 +67,50 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
 
 Route::middleware(['creator.api'])->prefix('creator')->group(function () {
 
-    //Music Management
-    Route::get('song/{id}', [CreatorController::class, 'songs_index_id']);
-    Route::get('lastplay', [CreatorController::class, 'last_play']);
-    Route::get('trending', [CreatorController::class, 'trending']);
-    Route::get('mood', [CreatorController::class, 'mood']);
+    Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
+    Route::get('lastplay', [SongsController::class, 'last_play']);
+    Route::get('trending', [SongsController::class, 'trending']);
+    Route::get('mood', [SongsController::class, 'mood']);
 
-    Route::post('playlists', [CreatorController::class, 'create_playlist']);
-    Route::get('playlists', [CreatorController::class, 'show_all_playlist']);
-    Route::get('playlist/{id}', [CreatorController::class, 'show_playlist']);
-    Route::put('playlist/{id}', [CreatorController::class, 'edit_playlist']);
-    Route::delete('playlist/{id}', [CreatorController::class, 'delete_playlist']);
 
-    Route::post('playlist/add/song', [CreatorController::class, 'add_to_playlist']);
-    Route::delete('playlist/remove/song/{playlist_id}/{song_id}', [CreatorController::class, 'remove_from_playlist']);
-
-    // update password
-    Route::put('update/{id}', [CreatorController::class, 'update_password']);
+    Route::post('playlists', [PlaylistsController::class, 'create_playlist']);
+    Route::get('playlists', [PlaylistsController::class, 'show_all_playlist']);
+    Route::get('playlist/{id}', [PlaylistsController::class, 'show_playlist']);
+    Route::put('playlist/{id}', [PlaylistsController::class, 'edit_playlist']);
+    Route::delete('playlist/{id}', [PlaylistsController::class, 'delete_playlist']);
+    Route::post('playlist/add/song', [PlaylistsController::class, 'add_to_playlist']);
+    Route::delete('playlist/remove/song/{playlist_id}/{song_id}', [PlaylistsController::class, 'remove_from_playlist']);
 
     Route::get('playlists/detail-playlists', [DetailPlaylistController::class, 'index']);
     Route::get('playlists/detail-playlists/{id}', [DetailPlaylistController::class, 'show']);
 
+
     //User Management
-    Route::get('profile', [CreatorController::class, 'show_register_by_id']);
-    Route::put('profile/update', [CreatorController::class, 'update_register']);
-    Route::post('profile/creator', [CreatorController::class, 'request_creator']);
+    Route::get('profile', [UserController::class, 'show_register_by_id']);
+    Route::put('profile/update', [UserController::class, 'update_register']);
+    Route::post('profile/creator', [UserController::class, 'request_creator']);
+    Route::put('update/{id}', [UserController::class, 'update_password']);
 
 
     //Album Management
-    Route::get('albums', [CreatorController::class, 'albums_index']);
-    Route::get('album/{id}', [CreatorController::class, 'albums_index_id']);
+    Route::get('albums', [AlbumsController::class, 'albums_index']);
+    Route::get('album/{id}', [AlbumsController::class, 'albums_index_id']);
 
     //Search
-    Route::get('search', [CreatorController::class, 'search']);
+    Route::get('search', [SearchController::class, 'search']);
+
+
+    Route::post('album/add', [AlbumsController::class, 'add_album']);
+    Route::get('albums', [AlbumsController::class, 'albums_index']);
+    Route::get('albums/{id}', [AlbumsController::class, 'albums_index_id']);
+    Route::put('albums/edit/{id}', [AlbumsController::class, 'edit_album']);
+    Route::delete('albums/delete/{id}', [AlbumsController::class, 'delete_album']);
+
+    Route::post('song/add', [SongsController::class, 'add_song']);
+    Route::get('songs', [SongsController::class, 'songs_index']);
+    Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
+    Route::put('song/edit/{id}', [SongsController::class, 'edit_song']);
+    Route::delete('song/delete/{id}', [SongsController::class, 'delete_song']);
 });
 
 
@@ -107,16 +122,14 @@ routes untuk admin, dimana terdapat middleware admin dan juga prefix awalan url 
 
 Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
-    // DASHBOARD -> OKE
+
     Route::get('dashboard', [AdminController::class, 'dashboard']);
 
-    //HOME
-    // Music Management
-    Route::post('song/add', [AdminController::class, 'add_song']);
-    Route::get('songs', [AdminController::class, 'songs_index']);
-    Route::get('song/{id}', [AdminController::class, 'songs_index_id']);
-    Route::put('song/edit/{id}', [AdminController::class, 'edit_song']);
-    Route::delete('song/delete/{id}', [AdminController::class, 'delete_song']);
+    Route::post('song/add', [SongsController::class, 'add_song']);
+    Route::get('songs', [SongsController::class, 'songs_index']);
+    Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
+    Route::put('song/edit/{id}', [SongsController::class, 'edit_song']);
+    Route::delete('song/delete/{id}', [SongsController::class, 'delete_song']);
 
     // User Management -> OKE
     Route::post('register', [AdminController::class, 'register']);
@@ -131,10 +144,17 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
 
 
 
-    // ALBUM -> OKE
-    Route::post('album/add', [AdminController::class, 'add_album']);
-    Route::get('albums', [AdminController::class, 'albums_index']);
-    Route::get('albums/{id}', [AdminController::class, 'albums_index_id']);
-    Route::put('albums/edit/{id}', [AdminController::class, 'edit_album']);
-    Route::delete('albums/delete/{id}', [AdminController::class, 'delete_album']);
+    Route::post('album/add', [AlbumsController::class, 'add_album']);
+    Route::get('albums', [AlbumsController::class, 'albums_index']);
+    Route::get('albums/{id}', [AlbumsController::class, 'albums_index_id']);
+    Route::put('albums/edit/{id}', [AlbumsController::class, 'edit_album']);
+    Route::delete('albums/delete/{id}', [AlbumsController::class, 'delete_album']);
+
+    Route::post('playlists', [PlaylistsController::class, 'create_playlist']);
+    Route::get('playlists', [PlaylistsController::class, 'show_all_playlist']);
+    Route::get('playlist/{id}', [PlaylistsController::class, 'show_playlist']);
+    Route::put('playlist/{id}', [PlaylistsController::class, 'edit_playlist']);
+    Route::delete('playlist/{id}', [PlaylistsController::class, 'delete_playlist']);
+    Route::post('playlist/add/song', [PlaylistsController::class, 'add_to_playlist']);
+    Route::delete('playlist/remove/song/{playlist_id}/{song_id}', [PlaylistsController::class, 'remove_from_playlist']);
 });
