@@ -43,6 +43,32 @@ class SearchController extends Controller
             ->select('songs.*', 'users.users_name')
             ->get();
 
-        return $songs;
+        $albums = Album::where('albums_title', 'LIKE', '%' . $keyword . '%')
+            ->where(function ($query) use ($userId) {
+                $query->where('albums.albums_status', '=', 'public')
+                    ->orWhere(function ($query) use ($userId) {
+                        $query->where('albums.albums_status', '=', 'private')
+                            ->where('albums.users_id', '=', $userId);
+                    });
+            })
+            ->get();
+
+        $playlists = Playlist::where('playlists_name', 'LIKE', '%' . $keyword . '%')
+            ->where(function ($query) use ($userId) {
+                $query->where('playlists.playlists_status', '=', 'public')
+                    ->orWhere(function ($query) use ($userId) {
+                        $query->where('playlists.playlists_status', '=', 'private')
+                            ->where('playlists.users_id', '=', $userId);
+                    });
+            })
+            ->get();
+
+
+
+        return response()->json([
+            'songs' => $songs,
+            'albums' => $albums,
+            'playlists' => $playlists
+        ]);
     }
 }
