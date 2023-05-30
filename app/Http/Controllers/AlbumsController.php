@@ -84,7 +84,7 @@ class AlbumsController extends Controller
 
         $user = User::find($decode->id_login);
 
-        if ($user->role === 'admin') {
+        if ($user->users_role === 'admin') {
             $albums = Album::all();
         } else {
             $albums = Album::where(function ($query) use ($decode) {
