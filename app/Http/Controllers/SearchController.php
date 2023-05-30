@@ -63,8 +63,6 @@ class SearchController extends Controller
             })
             ->get();
 
-
-
         return response()->json([
             'songs' => $songs,
             'albums' => $albums,

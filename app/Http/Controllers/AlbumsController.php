@@ -121,7 +121,6 @@ class AlbumsController extends Controller
         $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
 
         $album = Album::find($id);
-        $user = User::find($album->users_id);
 
         if (!$album) {
             return response()->json(
@@ -134,7 +133,8 @@ class AlbumsController extends Controller
             );
         }
 
-        if ($user->role !== 'admin' && ($album->users_id !== $user->id || $album->albums_status === 'private')) {
+        // Memeriksa apakah pengguna yang sedang mengakses adalah pembuat album atau admin
+        if ($decode->role !== 'admin' && $album->users_id !== $decode->id_login) {
             return response()->json(
                 [
                     "status" => "error",
@@ -145,15 +145,17 @@ class AlbumsController extends Controller
             );
         }
 
+        // Mengambil lagu-lagu dengan status "published" atau "pending" jika pengguna adalah "user" atau "creator"
         if ($decode->role === 'user' || $decode->role === 'creator') {
-            // Mengambil lagu-lagu dengan status "published" atau "pending"
             $songs = Song::where('albums_id', $id)
-                ->where('songs_status', 'published')
+                ->whereIn('songs_status', ['published', 'pending'])
                 ->get();
         } else {
             // Mengambil semua lagu
             $songs = Song::where('albums_id', $id)->get();
         }
+
+        $user = User::find($album->users_id);
 
         return response()->json([
             "status" => "success",
@@ -164,6 +166,7 @@ class AlbumsController extends Controller
             "user" => $user,
         ], 200);
     }
+
 
 
 
