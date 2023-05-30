@@ -120,25 +120,39 @@ class AlbumsController extends Controller
         $jwt = request()->bearerToken();
         $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
 
-
         $album = Album::find($id);
-        $songs = Song::where('albums_id', $id)->get();
         $user = User::find($album->users_id);
 
         if (!$album) {
-            return response()->json([
-                "status" => "error",
-                "code" => 404,
-                'message' => 'Album Tidak ditemukan',
-            ], 404);
+            return response()->json(
+                [
+                    "status" => "error",
+                    "code" => 404,
+                    'message' => 'Album Tidak ditemukan',
+                ],
+                404
+            );
         }
 
-        if ($user->role !== 'admin' && $album->users_id !== $user->id && $album->albums_status !== 'public') {
-            return response()->json([
-                "status" => "error",
-                "code" => 403,
-                'message' => 'Akses ditolak',
-            ], 403);
+        if ($user->role !== 'admin' && ($album->users_id !== $user->id || $album->albums_status === 'private')) {
+            return response()->json(
+                [
+                    "status" => "error",
+                    "code" => 403,
+                    'message' => 'Akses ditolak',
+                ],
+                403
+            );
+        }
+
+        if ($decode->role === 'user' || $decode->role === 'creator') {
+            // Mengambil lagu-lagu dengan status "published" atau "pending"
+            $songs = Song::where('albums_id', $id)
+                ->where('songs_status', 'published')
+                ->get();
+        } else {
+            // Mengambil semua lagu
+            $songs = Song::where('albums_id', $id)->get();
         }
 
         return response()->json([
@@ -150,6 +164,9 @@ class AlbumsController extends Controller
             "user" => $user,
         ], 200);
     }
+
+
+
 
 
 

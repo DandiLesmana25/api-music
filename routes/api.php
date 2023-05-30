@@ -98,6 +98,20 @@ Route::middleware(['creator.api'])->prefix('creator')->group(function () {
 
     //Search
     Route::get('search', [SearchController::class, 'search']);
+
+
+    Route::post('song/add', [SongsController::class, 'add_song']);
+    Route::get('songs', [SongsController::class, 'songs_index']);
+    Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
+    Route::put('song/edit/{id}', [SongsController::class, 'edit_song']);
+    Route::delete('song/delete/{id}', [SongsController::class, 'delete_song']);
+
+
+    Route::post('album/add', [AlbumsController::class, 'add_album']);
+    Route::get('albums', [AlbumsController::class, 'albums_index']);
+    Route::get('albums/{id}', [AlbumsController::class, 'albums_index_id']);
+    Route::put('albums/edit/{id}', [AlbumsController::class, 'edit_album']);
+    Route::delete('albums/delete/{id}', [AlbumsController::class, 'delete_album']);
 });
 
 

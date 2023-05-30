@@ -29,9 +29,13 @@ class SongsController extends Controller
     public function songs_index_id($id, Request $request)
     {
         $jwt = $request->bearerToken(); //ambil token
-        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decode token
+        $decode = JWT::decode($jwt, new Key(
+            env('JWT_SECRET_KEY'),
+            'HS256'
+        )); //decode token
 
         $song = Song::find($id);
+        $user = User::find($song->users_id);
 
         if (!$song) {
             return response()->json([
@@ -43,7 +47,8 @@ class SongsController extends Controller
         }
 
         // Memeriksa status lagu
-        if (($song->songs_status === 'pending' || $song->songs_status === 'unpublish') && $decode->role !== 'admin' && $song->users_id !== $decode->id_login) {
+        if (($song->songs_status === 'pending' || $song->songs_status === 'unpublish') && $decode->role !== 'admin' && $song->users_id !== $decode->id_login
+        ) {
             return response()->json([
                 "status" => "error",
                 "code" => 403,
@@ -62,9 +67,24 @@ class SongsController extends Controller
             "status" => "success",
             "code" => 200,
             'message' => 'Lagu dengan id : ' . $id,
-            'data' => $song,
+            'data' => [
+                "id" => $song->id,
+                "songs_title" => $song->songs_title,
+                "songs_cover" => $song->songs_cover,
+                "songs_song" => $song->songs_song,
+                "songs_release_date" => $song->songs_release_date,
+                "songs_status" => $song->songs_status,
+                "users_id" => $song->users_id,
+                "albums_id" => $song->albums_id,
+                "songs_mood" => $song->songs_mood,
+                "songs_genre" => $song->songs_genre,
+                "created_at" => $song->created_at,
+                "updated_at" => $song->updated_at,
+                "artist_name" => $user->users_name
+            ]
         ], 200);
     }
+
 
 
 
