@@ -131,6 +131,10 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
     Route::put('song/edit/{id}', [SongsController::class, 'edit_song']);
     Route::delete('song/delete/{id}', [SongsController::class, 'delete_song']);
+    Route::get('pending/song', [SongsController::class, 'pending_song']);
+    Route::post('pending/song/{id}', [SongsController::class, 'pending_song']);
+    Route::post('publish/song/{id}', [SongsController::class, 'publish_song']);
+    Route::post('unpublish/song/{id}', [SongsController::class, 'unpublish_song']);
 
     // User Management -> OKE
     Route::post('register', [AdminController::class, 'register']);

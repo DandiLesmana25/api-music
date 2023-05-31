@@ -49,7 +49,7 @@ class SongsController extends Controller
         $user = User::find($song->users_id);
 
         // Memeriksa status lagu
-        if (($song->songs_status === 'pending' || $song->songs_status === 'unpublish') && $decode->role !== 'admin' && $song->users_id !== $decode->id_login
+        if (($song->songs_status === 'pending' || $song->songs_status === 'unpublished') && $decode->role !== 'admin' && $song->users_id !== $decode->id_login
         ) {
             return response()->json([
                 "status" => "error",
@@ -173,7 +173,7 @@ class SongsController extends Controller
             'cover' => 'required|mimes:png,jpg,jpeg|max:2048',
             'song' => 'required|file|mimes:mp3',
             'release_date' => 'nullable|date',
-            'status' => 'required|in:Pending,Published,Unpublished',
+            'status' => 'nullable|in:Pending,Published,Unpublished',
             'id_album' => 'nullable|exists:albums,id',
             'mood' => 'nullable|in:Bahagia, Sedih, Romantis, Santai, Enerjik, Motivasi, Eksperimental, Sentimental, Menghibur, Gelisah, Inspiratif, Tenang, Semangat, Melankolis, Penuh energi, Memikat, Riang, Reflektif, Optimis, Bersemangat',
             'genre' => 'nullable|in:Pop, Rock, Hip-Hop, R&B, Country, Jazz, Electronic, Dance, Reggae, Folk, Classical, Alternative, Indie, Metal, Punk, Blues, Soul, Funk, Latin, World',
@@ -243,7 +243,7 @@ class SongsController extends Controller
             ], 404);
         }
 
-        if ($user->role === 'admin') {
+        if ($user->users_role === 'admin') {
             $songs = Song::all();
         } else {
             $songs = Song::where('users_id', $decode->id_login)
@@ -399,7 +399,70 @@ class SongsController extends Controller
 
     //********************************** M U S I C   M A N A  G E M E N T *******************************//
 
+    public function pending_song()
+    {
+        $songs = Song::where('songs_status', 'Pending')->get();
+
+        if ($songs->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Lagu dengan status "pending" tidak ditemukan',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Lagu dengan status "pending"',
+            'data' => $songs,
+        ]);
+    }
 
 
+    public function publish_song($id)
+    {
+        $song = Song::find($id);
 
+        if (!$song) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Lagu tidak ditemukan',
+            ], 404);
+        }
+
+        $song->songs_status = 'published';
+        $song->save();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Lagu berhasil diubah menjadi "published"',
+            'data' => $song,
+        ]);
+    }
+
+    public function unpublish_song($id)
+    {
+        $song = Song::find($id);
+
+        if (!$song) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Lagu tidak ditemukan',
+            ], 404);
+        }
+
+        $song->songs_status = 'unpublished';
+        $song->save();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Lagu berhasil diubah menjadi "unpublished"',
+            'data' => $song,
+        ]);
+    }
 }

@@ -390,6 +390,7 @@ class PlaylistsController extends Controller
                 "status" => "error",
                 "code" => 404,
                 'message' => 'Lagu tidak ditemukan dalam playlist',
+                'message' => $detailPlaylist
             ], 404);
         }
 
