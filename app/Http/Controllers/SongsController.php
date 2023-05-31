@@ -35,7 +35,7 @@ class SongsController extends Controller
         )); //decode token
 
         $song = Song::find($id);
-        $user = User::find($song->users_id);
+
 
         if (!$song) {
             return response()->json([
@@ -45,6 +45,8 @@ class SongsController extends Controller
                 'data' => null,
             ], 404);
         }
+
+        $user = User::find($song->users_id);
 
         // Memeriksa status lagu
         if (($song->songs_status === 'pending' || $song->songs_status === 'unpublish') && $decode->role !== 'admin' && $song->users_id !== $decode->id_login
