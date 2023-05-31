@@ -133,26 +133,36 @@ class AlbumsController extends Controller
             );
         }
 
-        // Memeriksa apakah pengguna yang sedang mengakses adalah pembuat album atau admin
-        if ($decode->role !== 'admin' && $album->users_id !== $decode->id_login) {
-            return response()->json(
-                [
-                    "status" => "error",
-                    "code" => 403,
-                    'message' => 'Akses ditolak',
-                ],
-                403
-            );
-        }
-
-        // Mengambil lagu-lagu dengan status "published" atau "pending" jika pengguna adalah "user" atau "creator"
-        if ($decode->role === 'user' || $decode->role === 'creator') {
-            $songs = Song::where('albums_id', $id)
-                ->whereIn('songs_status', ['published', 'pending'])
-                ->get();
-        } else {
-            // Mengambil semua lagu
+        // Memeriksa apakah pengguna yang sedang mengakses adalah admin
+        if ($decode->role === 'admin') {
+            // Mengambil semua lagu untuk admin
             $songs = Song::where('albums_id', $id)->get();
+        }
+        if ($decode->role === 'creator') {
+            $songs = Song::where('albums_id', $id)->get();
+            $songs = Song::where('users_id', $decode->id_login)->get();
+        } else {
+            // Memeriksa apakah album memiliki status "public"
+            if ($album->albums_status !== 'public') {
+                return response()->json(
+                    [
+                        "status" => "error",
+                        "code" => 403,
+                        'message' => 'Akses ditolak',
+                    ],
+                    403
+                );
+            }
+
+            // Mengambil lagu-lagu dengan status "published" atau "pending" jika pengguna adalah "user" atau "creator"
+            if ($decode->role === 'user' || $decode->role === 'creator') {
+                $songs = Song::where('albums_id', $id)
+                    ->whereIn('songs_status', ['published', 'pending'])
+                    ->get();
+            } else {
+                // Mengambil semua lagu
+                $songs = Song::where('albums_id', $id)->get();
+            }
         }
 
         $user = User::find($album->users_id);
@@ -163,9 +173,12 @@ class AlbumsController extends Controller
             "message" => 'Album dengan id: ' . $id,
             "data" => $album,
             "songs" => $songs,
-            "user" => $user,
+            "author" => $user,
         ], 200);
     }
+
+
+
 
 
 
