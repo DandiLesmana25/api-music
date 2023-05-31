@@ -154,15 +154,23 @@ class AlbumsController extends Controller
                 );
             }
 
-            // Mengambil lagu-lagu dengan status "published" atau "pending" jika pengguna adalah "user" atau "creator"
-            if ($decode->role === 'user' || $decode->role === 'creator') {
+
+            if ($decode->role === 'user') {
                 $songs = Song::where('albums_id', $id)
-                    ->whereIn('songs_status', ['published', 'pending'])
+                    ->where('songs_status', 'published')
                     ->get();
-            } else {
-                // Mengambil semua lagu
-                $songs = Song::where('albums_id', $id)->get();
             }
+            // if ($decode->role === 'creator') {
+            //     $songs = Song::where('albums_id', $id)
+            //         // ->where('songs_status', 'published')
+            //         ->get();
+            // }
+            // if ($decode->role === 'user') {
+            //     $songs = Song::where('albums_id', $id)
+            //         ->get();
+            // } else {
+            //     return response()->json(null);
+            // }
         }
 
         $user = User::find($album->users_id);

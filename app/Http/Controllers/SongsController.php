@@ -172,7 +172,7 @@ class SongsController extends Controller
             'title' => 'required|string',
             'cover' => 'required|mimes:png,jpg,jpeg|max:2048',
             'song' => 'required|file|mimes:mp3',
-            'release_date' => 'required|date',
+            'release_date' => 'nullable|date',
             'status' => 'required|in:Pending,Published,Unpublished',
             'id_album' => 'nullable|exists:albums,id',
             'mood' => 'nullable|in:Bahagia, Sedih, Romantis, Santai, Enerjik, Motivasi, Eksperimental, Sentimental, Menghibur, Gelisah, Inspiratif, Tenang, Semangat, Melankolis, Penuh energi, Memikat, Riang, Reflektif, Optimis, Bersemangat',
@@ -208,7 +208,7 @@ class SongsController extends Controller
         $song->songs_title = $request->title;
         $song->songs_cover = $coverUrl;
         $song->songs_song = $laguUrl;
-        $song->songs_release_date = $request->release_date;
+        $song->songs_release_date = $request->release_date ?? now();
         $song->songs_status = $request->status ?? 'pending'; // Menggunakan nilai default 'pending' jika status tidak disertakan dalam request
         $song->users_id = $decode->id_login;
         $song->albums_id = $request->id_album;
