@@ -31,7 +31,7 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
     Route::get('lastplay', [SongsController::class, 'last_play']);
     Route::get('trending', [SongsController::class, 'trending']);
-    Route::get('mood', [SongsController::class, 'mood']);
+    Route::get('moodbooster', [SongsController::class, 'mood']);
 
 
     Route::post('playlists', [PlaylistsController::class, 'create_playlist']);
@@ -70,7 +70,7 @@ Route::middleware(['creator.api'])->prefix('creator')->group(function () {
     Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
     Route::get('lastplay', [SongsController::class, 'last_play']);
     Route::get('trending', [SongsController::class, 'trending']);
-    Route::get('mood', [SongsController::class, 'mood']);
+    Route::get('moodbooster', [SongsController::class, 'mood']);
 
 
     Route::post('playlists', [PlaylistsController::class, 'create_playlist']);

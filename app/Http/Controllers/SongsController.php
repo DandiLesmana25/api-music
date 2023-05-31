@@ -175,8 +175,8 @@ class SongsController extends Controller
             'release_date' => 'nullable|date',
             'status' => 'nullable|in:Pending,Published,Unpublished',
             'id_album' => 'nullable|exists:albums,id',
-            'mood' => 'nullable|in:Bahagia, Sedih, Romantis, Santai, Enerjik, Motivasi, Eksperimental, Sentimental, Menghibur, Gelisah, Inspiratif, Tenang, Semangat, Melankolis, Penuh energi, Memikat, Riang, Reflektif, Optimis, Bersemangat',
-            'genre' => 'nullable|in:Pop, Rock, Hip-Hop, R&B, Country, Jazz, Electronic, Dance, Reggae, Folk, Classical, Alternative, Indie, Metal, Punk, Blues, Soul, Funk, Latin, World',
+            'mood' => 'nullable|in:Bahagia,Sedih,Romantis,Santai,Enerjik,Motivasi,Eksperimental,Sentimental,Menghibur,Gelisah,Inspiratif,Tenang,Semangat,Melankolis,Penuh energi,Memikat,Riang,Reflektif,Optimis,Bersemangat',
+            'genre' => 'nullable|in:Pop,Rock,Hip-Hop,R&B,Country,Jazz,Electronic,Dance,Reggae,Folk,Classical,Alternative,Indie,Metal,Punk,Blues,Soul,Funk,Latin,World',
         ]);
 
         if ($validator->fails()) {
@@ -463,6 +463,47 @@ class SongsController extends Controller
             'code' => 200,
             'message' => 'Lagu berhasil diubah menjadi "unpublished"',
             'data' => $song,
+        ]);
+    }
+
+
+    public function mood(Request $request)
+    {
+        $keyword = $request->input('keyword');
+        $jwt = $request->bearerToken();
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
+        $userId = $decode->id_login;
+        $role = $decode->role;
+
+        $songs = [];
+
+        if ($role === 'admin') {
+            $songs = Song::where(function ($query) use ($keyword) {
+                $query->where('songs_title', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('songs_mood', 'LIKE', '%' . $keyword . '%');
+            })
+                ->join('users', 'songs.users_id', '=', 'users.id')
+                ->select('songs.*', 'users.users_name')
+                ->get();
+        } else {
+            $songs = Song::where(function ($query) use ($keyword) {
+                $query->where('songs_title', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('songs_mood', 'LIKE', '%' . $keyword . '%');
+            })
+                ->join('users', 'songs.users_id', '=', 'users.id')
+                ->where(function ($query) use ($userId) {
+                    $query->where('songs.songs_status', '=', 'published')
+                        ->orWhere(function ($query) use ($userId) {
+                            $query->where('songs.songs_status', '=', 'pending')
+                                ->where('songs.users_id', '=', $userId);
+                        });
+                })
+                ->select('songs.*', 'users.users_name')
+                ->get();
+        }
+
+        return response()->json([
+            'songs' => $songs
         ]);
     }
 }
