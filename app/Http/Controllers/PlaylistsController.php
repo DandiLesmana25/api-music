@@ -29,7 +29,7 @@ class PlaylistsController extends Controller
             $request->all(),
             [
                 'name' => 'required|string',
-                'cover' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'status' => 'required|in:private,public',
             ]
         );
@@ -67,7 +67,7 @@ class PlaylistsController extends Controller
 
         $playlist = Playlist::create([
             'playlists_name' => $request->input('name'),
-            'playlists_cover' => asset($coverPath),
+            'playlists_cover' => asset('default/playlist.png'),
             'playlists_status' => $request->input('status'),
             'users_id' => $decode->id_login,
         ]);
