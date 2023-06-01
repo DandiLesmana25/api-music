@@ -35,7 +35,9 @@ class AdminController extends Controller
         $endDate = now()->endOfDay();
 
         $songCount = Song::whereBetween('songs_release_date', [$startDate, $endDate])->count();
-        $userUpdate = User::whereBetween('created_at', [$startDate, $endDate])->count();
+        $userUpdate = User::whereBetween('created_at', [$startDate, $endDate])
+            ->whereIn('users_role', ['user', 'creator'])->count();
+
 
         $result = [
             "user_statistics" => [

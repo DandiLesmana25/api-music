@@ -30,19 +30,58 @@ class SearchController extends Controller
         $jwt = $request->bearerToken();
         $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
         $userId = $decode->id_login;
+        $role = $decode->role;
 
-        $songs = Song::where('songs_title', 'LIKE', '%' . $keyword . '%')
-            ->join('users', 'songs.users_id', '=', 'users.id')
-            ->where(function ($query) use ($userId) {
-                $query->where('songs.songs_status', '=', 'published')
-                    ->orWhere(function ($query) use ($userId) {
-                        $query->where('songs.songs_status', '=', 'pending')
-                            ->where('songs.users_id', '=', $userId);
+        $songs = [];
+        $albums = [];
+        $playlists = [];
+
+        if ($role === 'admin') {
+            $songs = Song::where('songs_title', 'LIKE', '%' . $keyword . '%')
+                ->join('users', 'songs.users_id', '=', 'users.id')
+                ->select('songs.*', 'users.users_name')
+                ->get();
+
+            $albums = Album::where('albums_title', 'LIKE', '%' . $keyword . '%')->get();
+
+            $playlists = Playlist::where('playlists_name', 'LIKE', '%' . $keyword . '%')->get();
+        } else {
+            $songs = Song::where('songs_title', 'LIKE', '%' . $keyword . '%')
+                ->join('users', 'songs.users_id', '=', 'users.id')
+                ->where(function ($query) use ($userId) {
+                    $query->where('songs.songs_status', '=', 'published')
+                        ->orWhere(function ($query) use ($userId) {
+                            $query->where('songs.songs_status', '=', 'pending')
+                                ->where('songs.users_id', '=', $userId);
+                        });
+                })
+                ->select('songs.*', 'users.users_name')
+                ->get();
+
+            $albums = Album::where('albums_title', 'LIKE', '%' . $keyword . '%')
+                ->where(function ($query) use ($userId) {
+                    $query->where('albums.albums_status', '=', 'public')
+                        ->orWhere(function ($query) use ($userId) {
+                            $query->where('albums.albums_status', '=', 'private')
+                                ->where('albums.users_id', '=', $userId);
+                        });
+                })
+                ->get();
+
+            $playlists = Playlist::where('playlists_name', 'LIKE', '%' . $keyword . '%')
+                ->where(function ($query) use ($userId) {
+                    $query->orWhere(function ($query) use ($userId) {
+                        $query->where('playlists.playlists_status', '=', 'private')
+                            ->where('playlists.users_id', '=', $userId);
                     });
-            })
-            ->select('songs.*', 'users.users_name')
-            ->get();
+                })
+                ->get();
+        }
 
-        return $songs;
+        return response()->json([
+            'songs' => $songs,
+            'albums' => $albums,
+            'playlists' => $playlists
+        ]);
     }
 }

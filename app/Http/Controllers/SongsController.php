@@ -29,9 +29,13 @@ class SongsController extends Controller
     public function songs_index_id($id, Request $request)
     {
         $jwt = $request->bearerToken(); //ambil token
-        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256')); //decode token
+        $decode = JWT::decode($jwt, new Key(
+            env('JWT_SECRET_KEY'),
+            'HS256'
+        )); //decode token
 
         $song = Song::find($id);
+
 
         if (!$song) {
             return response()->json([
@@ -42,8 +46,11 @@ class SongsController extends Controller
             ], 404);
         }
 
+        $user = User::find($song->users_id);
+
         // Memeriksa status lagu
-        if (($song->songs_status === 'pending' || $song->songs_status === 'unpublish') && $decode->role !== 'admin' && $song->users_id !== $decode->id_login) {
+        if (($song->songs_status === 'pending' || $song->songs_status === 'unpublished') && $decode->role !== 'admin' && $song->users_id !== $decode->id_login
+        ) {
             return response()->json([
                 "status" => "error",
                 "code" => 403,
@@ -62,9 +69,24 @@ class SongsController extends Controller
             "status" => "success",
             "code" => 200,
             'message' => 'Lagu dengan id : ' . $id,
-            'data' => $song,
+            'data' => [
+                "id" => $song->id,
+                "songs_title" => $song->songs_title,
+                "songs_cover" => $song->songs_cover,
+                "songs_song" => $song->songs_song,
+                "songs_release_date" => $song->songs_release_date,
+                "songs_status" => $song->songs_status,
+                "users_id" => $song->users_id,
+                "albums_id" => $song->albums_id,
+                "songs_mood" => $song->songs_mood,
+                "songs_genre" => $song->songs_genre,
+                "created_at" => $song->created_at,
+                "updated_at" => $song->updated_at,
+                "artist_name" => $user->users_name
+            ]
         ], 200);
     }
+
 
 
 
@@ -150,11 +172,11 @@ class SongsController extends Controller
             'title' => 'required|string',
             'cover' => 'required|mimes:png,jpg,jpeg|max:2048',
             'song' => 'required|file|mimes:mp3',
-            'release_date' => 'required|date',
-            'status' => 'required|in:Pending,Published,Unpublished',
+            'release_date' => 'nullable|date',
+            'status' => 'nullable|in:Pending,Published,Unpublished',
             'id_album' => 'nullable|exists:albums,id',
-            'mood' => 'nullable|in:Bahagia, Sedih, Romantis, Santai, Enerjik, Motivasi, Eksperimental, Sentimental, Menghibur, Gelisah, Inspiratif, Tenang, Semangat, Melankolis, Penuh energi, Memikat, Riang, Reflektif, Optimis, Bersemangat',
-            'genre' => 'nullable|in:Pop, Rock, Hip-Hop, R&B, Country, Jazz, Electronic, Dance, Reggae, Folk, Classical, Alternative, Indie, Metal, Punk, Blues, Soul, Funk, Latin, World',
+            'mood' => 'nullable|in:Bahagia,Sedih,Romantis,Santai,Enerjik,Motivasi,Eksperimental,Sentimental,Menghibur,Gelisah,Inspiratif,Tenang,Semangat,Melankolis,Penuh energi,Memikat,Riang,Reflektif,Optimis,Bersemangat',
+            'genre' => 'nullable|in:Pop,Rock,Hip-Hop,R&B,Country,Jazz,Electronic,Dance,Reggae,Folk,Classical,Alternative,Indie,Metal,Punk,Blues,Soul,Funk,Latin,World',
         ]);
 
         if ($validator->fails()) {
@@ -186,7 +208,7 @@ class SongsController extends Controller
         $song->songs_title = $request->title;
         $song->songs_cover = $coverUrl;
         $song->songs_song = $laguUrl;
-        $song->songs_release_date = $request->release_date;
+        $song->songs_release_date = $request->release_date ?? now();
         $song->songs_status = $request->status ?? 'pending'; // Menggunakan nilai default 'pending' jika status tidak disertakan dalam request
         $song->users_id = $decode->id_login;
         $song->albums_id = $request->id_album;
@@ -221,7 +243,7 @@ class SongsController extends Controller
             ], 404);
         }
 
-        if ($user->role === 'admin') {
+        if ($user->users_role === 'admin') {
             $songs = Song::all();
         } else {
             $songs = Song::where('users_id', $decode->id_login)
@@ -377,7 +399,111 @@ class SongsController extends Controller
 
     //********************************** M U S I C   M A N A  G E M E N T *******************************//
 
+    public function pending_song()
+    {
+        $songs = Song::where('songs_status', 'Pending')->get();
+
+        if ($songs->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Lagu dengan status "pending" tidak ditemukan',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Lagu dengan status "pending"',
+            'data' => $songs,
+        ]);
+    }
 
 
+    public function publish_song($id)
+    {
+        $song = Song::find($id);
 
+        if (!$song) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Lagu tidak ditemukan',
+            ], 404);
+        }
+
+        $song->songs_status = 'published';
+        $song->save();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Lagu berhasil diubah menjadi "published"',
+            'data' => $song,
+        ]);
+    }
+
+    public function unpublish_song($id)
+    {
+        $song = Song::find($id);
+
+        if (!$song) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Lagu tidak ditemukan',
+            ], 404);
+        }
+
+        $song->songs_status = 'unpublished';
+        $song->save();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Lagu berhasil diubah menjadi "unpublished"',
+            'data' => $song,
+        ]);
+    }
+
+
+    public function mood(Request $request)
+    {
+        $keyword = $request->input('keyword');
+        $jwt = $request->bearerToken();
+        $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
+        $userId = $decode->id_login;
+        $role = $decode->role;
+
+        $songs = [];
+
+        if ($role === 'admin') {
+            $songs = Song::where(function ($query) use ($keyword) {
+                $query->where('songs_title', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('songs_mood', 'LIKE', '%' . $keyword . '%');
+            })
+                ->join('users', 'songs.users_id', '=', 'users.id')
+                ->select('songs.*', 'users.users_name')
+                ->get();
+        } else {
+            $songs = Song::where(function ($query) use ($keyword) {
+                $query->where('songs_title', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('songs_mood', 'LIKE', '%' . $keyword . '%');
+            })
+                ->join('users', 'songs.users_id', '=', 'users.id')
+                ->where(function ($query) use ($userId) {
+                    $query->where('songs.songs_status', '=', 'published')
+                        ->orWhere(function ($query) use ($userId) {
+                            $query->where('songs.songs_status', '=', 'pending')
+                                ->where('songs.users_id', '=', $userId);
+                        });
+                })
+                ->select('songs.*', 'users.users_name')
+                ->get();
+        }
+
+        return response()->json([
+            'songs' => $songs
+        ]);
+    }
 }

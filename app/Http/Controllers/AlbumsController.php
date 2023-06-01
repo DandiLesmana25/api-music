@@ -84,7 +84,7 @@ class AlbumsController extends Controller
 
         $user = User::find($decode->id_login);
 
-        if ($user->role === 'admin') {
+        if ($user->users_role === 'admin') {
             $albums = Album::all();
         } else {
             $albums = Album::where(function ($query) use ($decode) {
@@ -120,26 +120,66 @@ class AlbumsController extends Controller
         $jwt = request()->bearerToken();
         $decode = JWT::decode($jwt, new Key(env('JWT_SECRET_KEY'), 'HS256'));
 
-
         $album = Album::find($id);
-        $songs = Song::where('albums_id', $id)->get();
-        $user = User::find($album->users_id);
 
         if (!$album) {
-            return response()->json([
-                "status" => "error",
-                "code" => 404,
-                'message' => 'Album Tidak ditemukan',
-            ], 404);
+            return response()->json(
+                [
+                    "status" => "error",
+                    "code" => 404,
+                    'message' => 'Album Tidak ditemukan',
+                ],
+                404
+            );
         }
 
-        if ($user->role !== 'admin' && $album->users_id !== $user->id && $album->albums_status !== 'public') {
-            return response()->json([
-                "status" => "error",
-                "code" => 403,
-                'message' => 'Akses ditolak',
-            ], 403);
+        if ($decode->role === 'admin') {
+            // Mengambil semua lagu untuk admin
+            $songs = Song::where('albums_id', $id)->get();
+        } elseif ($decode->role === 'creator') {
+            // Memeriksa apakah album memiliki status "public" atau dibuat oleh creator
+            $songs = Song::where('albums_id', $id)
+                ->where(function ($query) use ($decode) {
+                    $query->where('songs_status', 'published')
+                        ->orWhere(function ($query) use ($decode) {
+                            $query->where('songs_status', 'pending')
+                                ->where('users_id', $decode->id_login);
+                        });
+                })
+                ->get();
+
+            // Memeriksa apakah album memiliki status "private" dan dibuat oleh creator
+            if ($album->albums_status === 'private' && $album->users_id !== $decode->id_login) {
+                return response()->json(
+                    [
+                        "status" => "error",
+                        "code" => 403,
+                        'message' => 'Akses ditolak',
+                    ],
+                    403
+                );
+            }
+        } else {
+            // Memeriksa apakah album memiliki status "public"
+            if ($album->albums_status !== 'public') {
+                return response()->json(
+                    [
+                        "status" => "error",
+                        "code" => 403,
+                        'message' => 'Akses ditolak',
+                    ],
+                    403
+                );
+            }
+
+            // Mengambil lagu-lagu dengan status "published" jika pengguna adalah "user"
+            $songs = Song::where('albums_id', $id)
+                ->where('songs_status', 'published')
+                ->get();
         }
+
+
+        $user = User::find($album->users_id);
 
         return response()->json([
             "status" => "success",
@@ -147,9 +187,16 @@ class AlbumsController extends Controller
             "message" => 'Album dengan id: ' . $id,
             "data" => $album,
             "songs" => $songs,
-            "user" => $user,
+            "author" => $user,
         ], 200);
     }
+
+
+
+
+
+
+
 
 
 

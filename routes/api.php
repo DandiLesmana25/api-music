@@ -31,7 +31,7 @@ Route::middleware(['user.api'])->prefix('user')->group(function () {
     Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
     Route::get('lastplay', [SongsController::class, 'last_play']);
     Route::get('trending', [SongsController::class, 'trending']);
-    Route::get('mood', [SongsController::class, 'mood']);
+    Route::get('moodbooster', [SongsController::class, 'mood']);
 
 
     Route::post('playlists', [PlaylistsController::class, 'create_playlist']);
@@ -70,7 +70,7 @@ Route::middleware(['creator.api'])->prefix('creator')->group(function () {
     Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
     Route::get('lastplay', [SongsController::class, 'last_play']);
     Route::get('trending', [SongsController::class, 'trending']);
-    Route::get('mood', [SongsController::class, 'mood']);
+    Route::get('moodbooster', [SongsController::class, 'mood']);
 
 
     Route::post('playlists', [PlaylistsController::class, 'create_playlist']);
@@ -98,6 +98,20 @@ Route::middleware(['creator.api'])->prefix('creator')->group(function () {
 
     //Search
     Route::get('search', [SearchController::class, 'search']);
+
+
+    Route::post('song/add', [SongsController::class, 'add_song']);
+    Route::get('songs', [SongsController::class, 'songs_index']);
+    Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
+    Route::put('song/edit/{id}', [SongsController::class, 'edit_song']);
+    Route::delete('song/delete/{id}', [SongsController::class, 'delete_song']);
+
+
+    Route::post('album/add', [AlbumsController::class, 'add_album']);
+    Route::get('albums', [AlbumsController::class, 'albums_index']);
+    Route::get('albums/{id}', [AlbumsController::class, 'albums_index_id']);
+    Route::put('albums/edit/{id}', [AlbumsController::class, 'edit_album']);
+    Route::delete('albums/delete/{id}', [AlbumsController::class, 'delete_album']);
 });
 
 
@@ -117,6 +131,10 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function () {
     Route::get('song/{id}', [SongsController::class, 'songs_index_id']);
     Route::put('song/edit/{id}', [SongsController::class, 'edit_song']);
     Route::delete('song/delete/{id}', [SongsController::class, 'delete_song']);
+    Route::get('pending/song', [SongsController::class, 'pending_song']);
+    Route::post('pending/song/{id}', [SongsController::class, 'pending_song']);
+    Route::post('publish/song/{id}', [SongsController::class, 'publish_song']);
+    Route::post('unpublish/song/{id}', [SongsController::class, 'unpublish_song']);
 
     // User Management -> OKE
     Route::post('register', [AdminController::class, 'register']);
