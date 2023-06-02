@@ -29,7 +29,7 @@ class PlaylistsController extends Controller
             $request->all(),
             [
                 'name' => 'required|string',
-                'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                // 'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'status' => 'required|in:private,public',
             ]
         );
@@ -59,11 +59,11 @@ class PlaylistsController extends Controller
             ], 409);
         }
 
-        $cover = $request->file('cover');
-        $coverExtension = $cover->getClientOriginalExtension();
-        $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
-        $coverPath = 'playlist/' . $coverName;
-        $cover->move(public_path('playlist'), $coverPath);
+        // $cover = $request->file('cover');
+        // $coverExtension = $cover->getClientOriginalExtension();
+        // $coverName = uniqid() . '_' . time() . '.' . $coverExtension;
+        // $coverPath = 'playlist/' . $coverName;
+        // $cover->move(public_path('playlist'), $coverPath);
 
         $playlist = Playlist::create([
             'playlists_name' => $request->input('name'),
@@ -138,7 +138,7 @@ class PlaylistsController extends Controller
                         $query->where('playlists_status', 'public')
                             ->where('id', $id);
                     });
-            })->first();
+            })->where('id', $id)->first();
         }
 
         if (!$playlist) {
