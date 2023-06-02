@@ -138,7 +138,7 @@ class PlaylistsController extends Controller
                         $query->where('playlists_status', 'public')
                             ->where('id', $id);
                     });
-            })->first();
+            })->where('id', $id)->first();
         }
 
         if (!$playlist) {
