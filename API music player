@@ -1,27 +1,30 @@
 API music player
 
+Requirments :
+
+PHP
+MySQL
+Composer
+
 Installation
 Clone the repository or download the source code.
 
-bash
+
 Copy code
 git clone <repository-url>
 Navigate to the project directory.
 
-bash
+
 Copy code
 cd api-music
 Install Composer dependencies.
-
-Copy code
+Run:
 composer install
 Install NPM dependencies.
 
 Copy code
 npm install
 or
-
-Copy code
 yarn install
 Create a copy of the .env.example file and rename it to .env.
 
@@ -30,13 +33,13 @@ Copy code
 cp .env.example .env
 Generate the application key.
 
-vbnet
-Copy code
+run:
+
 php artisan key:generate
 Update the .env file with your database connection information.
 
-makefile
-Copy code
+
+Change code
 DB_CONNECTION=mysql
 DB_HOST=your_database_host
 DB_PORT=your_database_port
@@ -45,11 +48,10 @@ DB_USERNAME=your_database_username
 DB_PASSWORD=your_database_password
 Run the database migrations.
 
-Copy code
+Run
 php artisan migrate
 Start the development server.
 
-Copy code
 php artisan serve
 You can now access the application at http://localhost:8000.
 
