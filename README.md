@@ -2,7 +2,7 @@
 **Backend Aplikasi  music player**
 aplikasi frontendnya bisa di akses di https://github.com/DandiLesmana25/soundbox-musicPlayerApp.git
 
-API ini dapat diakses di  soundbox.my.id
+API ini dapat diakses di  http://soundbox.my.id
 
 **Requirments :**
 
