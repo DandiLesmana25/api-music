@@ -1,6 +1,6 @@
 # api-music
 **Backend Aplikasi  music player**
-aplikasi frontendnya bisa di akses di https://github.com/DandiLesmana25/soundbox-musicPlayerApp.git
+aplikasi frontendnya menggunakan **ionic framework **bisa di akses di https://github.com/DandiLesmana25/soundbox-musicPlayerApp.git
 
 API ini dapat diakses di  http://soundbox.my.id
 
